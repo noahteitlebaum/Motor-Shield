@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS experiment_features (
     
     FOREIGN KEY (experiment_id) REFERENCES experiments(id)
 );
-`
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_experiments_recording_id ON experiments(recording_id);
 CREATE INDEX IF NOT EXISTS idx_experiments_id ON experiments(id);
