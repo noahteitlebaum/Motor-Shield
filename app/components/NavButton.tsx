@@ -1,21 +1,22 @@
+"use client";
+
 import Link from "next/link";
+import styles from "./NavButton.module.css";
 
-type Props={
-    name: string, 
-    link: string,
-    state: boolean,
-    //onSelect?: () => void
-}
+type Props = {
+  name: string;
+  link: string;
+  active?: boolean;
+};
 
-export default function NavButton({name, link, state, /*onSelect*/}: Props){
-const bgColour = state ? "h-14 bg-linear-to-r from-[#A6C0D0] to-[#6299BB] hover:to-[#6299BB]" : "bg-[#6299BB]"
-const textColour = state ? "text-[#FFFFFF] hover:text-[#36404D]" : "text-[#36404D]"
-    return(
-    <Link href={link}>
-        <div className={`flex justify-center items-center w-[293 px] h-[103 px] ${bgColour} rounded-2xl`}
-            /*onClick={onSelect}*/>
-            <p className={`${textColour} text-center`}>{name}</p>
-        </div>
+export default function NavButton({ name, link, active = false }: Props) {
+  return (
+    <Link
+      href={link}
+      className={`${styles.button} ${active ? styles.active : ""}`}
+      aria-current={active ? "page" : undefined}
+    >
+      <span className={styles.label}>{name}</span>
     </Link>
-    )
+  );
 }

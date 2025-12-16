@@ -1,0 +1,77 @@
+/* NavButton.module.css */
+
+.navContainer {
+  position: fixed;
+  top: 12px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0 1rem;
+  z-index: 50;
+  pointer-events: auto;
+}
+
+.navSpacer {
+  height: 136px; /* clears the fixed nav (button height + spacing) */
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 293px;
+  height: 103px;
+  border-radius: 16px;
+  background: #6299BB;
+  color: #36404D;
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+  will-change: transform;
+}
+
+.button:hover,
+.button:focus {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  outline: none;
+}
+
+.button:focus {
+  box-shadow: 0 0 0 4px rgba(98, 153, 187, 0.18);
+}
+
+.active {
+  background: linear-gradient(90deg, #A6C0D0 0%, #6299BB 100%);
+  color: #ffffff;
+}
+
+.label {
+  text-align: center;
+  font-size: 1rem;
+  padding: 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* responsive */
+@media (max-width: 800px) {
+  .navContainer {
+    gap: 0.5rem;
+    padding: 0 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .button {
+    flex: 0 0 44%;
+    width: auto;
+    min-width: 140px;
+    height: 72px;
+  }
+  .navSpacer {
+    height: 96px;
+  }
+}

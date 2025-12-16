@@ -1,9 +1,9 @@
-
-
+import NavigationBar from "../components/NavigationBar"
 
 export function ProjectOverview(){
     return(
         <>
+            <NavigationBar/>
             <h1>This is the Project Overview page</h1>
         </>
     )

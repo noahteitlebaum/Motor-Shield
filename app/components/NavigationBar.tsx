@@ -1,14 +1,27 @@
-"use client"
+"use client";
 
-import NavButton from "./NavButton"
-import {useEffect, useState} from 'react'
+import NavButton from "./NavButton";
+import styles from "./NavButton.module.css";
+import { usePathname } from "next/navigation";
 
-export default function NavigationBar(){
+const routes = [
+  { name: "Dashboard", link: "/Dashboard" },
+  { name: "Learn More", link: "/LearnMore" },
+  { name: "Meet the Team", link: "/MeetTheTeam" },
+  { name: "Project Overview", link: "/ProjectOverview" },
+];
 
-    return(
-        <div>
+export default function NavigationBar() {
+  const pathname = usePathname();
 
-            <NavButton name="Learn More" link="/LearnMore" state={true}/>
-        </div>
-    )
+  return (
+    <>
+      <nav className={styles.navContainer}>
+        {routes.map((r) => (
+          <NavButton key={r.link} name={r.name} link={r.link} active={pathname === r.link} />
+        ))}
+      </nav>
+      <div className={styles.navSpacer} aria-hidden />
+    </>
+  );
 }
