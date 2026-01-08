@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import FooterBar from "./components/NavigationBar/FooterBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,9 +27,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}> {/*forcing body to be at least as tall as window; stacking elements vertically*/}
         {/* Top-left logo (site-wide) */}
-        <header className="fixed top-4 left-4 z-50">
+        <header className="fixed top-2 left-4 z-60">
           <Link href="/" className="inline-block" aria-label="Go to home">
             <img
               src="./MotorShieldLogo.png"
@@ -40,7 +41,11 @@ export default function RootLayout({
           </Link>
         </header>
 
-        {children}
+        <main className={"flex-grow"}>
+          {children}
+        </main>
+        
+      <FooterBar/>
       </body>
     </html>
   );

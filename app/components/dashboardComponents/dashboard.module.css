@@ -1,0 +1,35 @@
+.statusBox{
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 600px;
+    z-index: 1;
+    margin-top: 0px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom:20px;
+    padding: 10px;
+    border-radius: 20px;
+    background-color: #F0F0F0;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+}
+
+.alertsContainer{
+    display: flex;
+    flex-direction: column;
+    width: 35%;
+    height: 90%;
+    margin: 1rem;
+    padding: 5px;
+    border-radius: 10px;
+    border-style: solid;
+    border-width: thin;
+
+}
+.alertsTitle{
+    text-align: center;
+    font-weight: 800;
+    font-size: 2em;
+}

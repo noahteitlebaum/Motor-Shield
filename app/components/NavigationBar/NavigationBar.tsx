@@ -11,13 +11,22 @@ const routes = [
   { name: "Project Overview", link: "/ProjectOverview" },
 ];
 
+const route = [{ name: "Learn More", link: "/LearnMore" }];
+
 export default function NavigationBar() {
   const pathname = usePathname();
 
   return (
     <>
       <nav className={styles.navContainer}>
-        {routes.map((r) => (
+                <p className={styles.projectName}>Motorshield</p>
+                <p style={{
+                  color:"#636262ca", 
+                  alignSelf:"center",
+                  marginRight:"1em",
+                }}>Predict failure before it happens.</p>
+
+        {route.map((r) => (
           <NavButton key={r.link} name={r.name} link={r.link} active={pathname === r.link} />
         ))}
       </nav>
