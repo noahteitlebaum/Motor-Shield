@@ -16,18 +16,18 @@ const MotorHealthBar: React.FC<MotorHealthBarProps> = ({ health }) => {
   const shadowStyle = `0 0 15px hsl(${hue}, 90%, 45%, 0.6)`;
 
   return (
-    <div className="w-full max-w-md mx-auto p-4 bg-gray-900/50 backdrop-blur-md rounded-2xl border border-gray-800 shadow-xl">
+    <div className="w-full max-w-md mx-auto p-4 bg-white/50 dark:bg-[var(--card-bg)]/50 backdrop-blur-md rounded-2xl border border-[var(--card-border)] shadow-xl transition-colors duration-300">
       <div className="flex justify-between items-center mb-2">
-        <span className="text-gray-200 font-medium tracking-wide">
+        <span className="text-[var(--text-secondary)] font-medium tracking-wide">
           Motor Health
         </span>
-        <span className="text-white font-bold">
+        <span className="text-[var(--text-primary)] font-bold">
           {Math.round(clampedHealth)}%
         </span>
       </div>
 
       {/* Background Track */}
-      <div className="h-4 w-full bg-gray-700/50 rounded-full overflow-hidden backdrop-blur-sm border border-gray-600/30">
+      <div className="h-4 w-full bg-gray-200 dark:bg-gray-700/50 rounded-full overflow-hidden backdrop-blur-sm border border-black/5 dark:border-gray-600/30">
         {/* Active Bar */}
         <div
           className="h-full transition-all duration-700 ease-in-out rounded-full relative"

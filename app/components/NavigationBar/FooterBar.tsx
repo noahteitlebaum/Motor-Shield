@@ -16,24 +16,41 @@ export default function FooterBar() {
   return (
     <>
       <nav className={styles.footerContainer}>
+        <div className={styles.footerLogo}>
+          <img
+            src="./MotorShieldLogo.png"
+            alt="Motor Shield logo"
+            className="w-15 h-15 object-contain"
+            width={56}
+            height={56}
+          />
 
-   <div className={styles.footerLogo}>
-            <img
-              src="./MotorShieldLogo.png"
-              alt="Motor Shield logo"
-              className="w-15 h-15 object-contain"
-              width={56}
-              height={56}
-            />
-
-            <p style={{color:"#b1b1b1b5", alignSelf:"center", textAlign:"center", margin:"0px 10px"}}>Motorshield<br/>2026</p>
+          <p
+            style={{
+              color: "var(--text-secondary)",
+              alignSelf: "center",
+              textAlign: "center",
+              margin: "0px 10px",
+            }}
+          >
+            Motorshield
+            <br />
+            2026
+          </p>
         </div>
 
-        <a href="mailto:anacca@uwo.ca" className={styles.emailLink}>Contact <img src="./email_Icon.png" className="w-8 h-6.5 object-contain"/></a>
-
+        <a href="mailto:anacca@uwo.ca" className={styles.emailLink}>
+          Contact{" "}
+          <img src="./email_Icon.png" className="w-8 h-6.5 object-contain" />
+        </a>
 
         {routes.map((r) => (
-          <NavButton key={r.link} name={r.name} link={r.link} active={pathname === r.link} />
+          <NavButton
+            key={r.link}
+            name={r.name}
+            link={r.link}
+            active={pathname === r.link}
+          />
         ))}
       </nav>
     </>
