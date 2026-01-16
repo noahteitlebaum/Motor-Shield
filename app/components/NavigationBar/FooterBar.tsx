@@ -29,7 +29,7 @@ export default function FooterBar() {
             <p style={{color:"#b1b1b1b5", alignSelf:"center", textAlign:"center", margin:"0px 10px"}}>Motorshield<br/>2026</p>
         </div>
 
-        <a href="mailto:anacca@uwo.ca" className={styles.emailLink}>Contact <img src="./email_Icon.png" className="w-8 h-6.5 object-contain"/></a>
+        <a href="mailto:anacca@uwo.ca" className={styles.emailLink}>Contact<img src="./mail.svg" className="w-8 h-6.5 object-contain"/></a>
 
 
         {routes.map((r) => (

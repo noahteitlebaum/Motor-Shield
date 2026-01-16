@@ -23,7 +23,7 @@ export default function GraphCard({title, description, reactGraph}: props) {
 
         {/*FRONT FACE*/}
         <div className={styles.frontFace}>
-            <button className={styles.flipButton} onClick={handleFlip}> <img src='/swapArrowCrop.png' alt="flip"/> </button>
+            <button className={styles.flipButton} onClick={handleFlip}> <img src='/arrow-down-up.svg' alt="flip"/> </button>
 
             <div className={styles.titleBox}>
             <h3 className={styles.title}>{title}</h3>
@@ -34,7 +34,7 @@ export default function GraphCard({title, description, reactGraph}: props) {
 
         {/*BACK FACE*/}
         <div className={styles.backFace}>
-            <button className={styles.flipButton} onClick={handleFlip}> <img src="/swapArrowCrop.png" alt="flip"/> </button>
+            <button className={styles.flipButton} onClick={handleFlip}> <img src="/arrow-down-up.svg" alt="flip"/> </button>
 
             <div className={styles.titleBox}>
             <h3 className={styles.title}>{title}</h3>

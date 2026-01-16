@@ -16,6 +16,7 @@
     width: 400px;
     height: 400px;
     margin: 1rem;
+    margin-bottom: 2.5rem; /*give space between graph and footer. Change if graph is no longer directly above footer*/
 }
 
 .card{
@@ -25,13 +26,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 20px;
+    border-radius: 16px;
     width: 100%; /*replacing 400px for width/height*/
     height: 100%;
     transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
     will-change: transform;
-    background: #A4A1A1;
-
+    /*background: #A4A1A1;*/
+    background: #FFFFFF;
+    /*box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.2), 0 12px 10px 0 rgba(0, 0, 0, 0.19);*/
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 
@@ -63,7 +66,7 @@
     backface-visibility: hidden;
     padding: 1rem;
     box-sizing: border-box;
-    transform: rotateY(180deg);
+    transform: rotateY(180deg) translateZ(1px); /*translate z is used to eliminate pop-in/"loading" of backface*/
 }
 .backFaceBox{
     position: relative;
@@ -74,13 +77,13 @@
 
     box-sizing: border-box;
     width: 100%; 
-    height: 100%;
+    height: 80%;
     max-height: 350px;
     margin-top: 50px;
     overflow-y: auto;
     scrollbar-width: thin;
-    border-radius: 20px;
-    background-color: #cfc9c9;
+    border-radius: 16px;
+    background-color: #f8f8f8;
 }
 
 .flipped{
@@ -121,18 +124,19 @@
     cursor: pointer;
 }
 .flipButton:hover{
-    background-color: rgba(140, 140, 140, 0.345);
-      transform: scale(1.02);
+      transform: scale(1.05);
+      transition: 0.2s ease;
 }
 
 .title{
 position: relative;
 text-align: center;
 color: #204C9E;
-font-weight: 900;
+font-weight: 700;
+font-size: 1.5rem;
 }
 
-.titleBox{
+.titleBox{ /*the white background that contains the title text for each graph box*/
 position: absolute;
 top: 15px;
 background-color: white;
@@ -142,7 +146,7 @@ max-width:90%;
 padding: 5px 20px;
 left: 50%;
 transform: translateX(-50%);
-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.19);
 white-space: nowrap;
 }
 

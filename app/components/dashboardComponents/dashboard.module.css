@@ -9,11 +9,11 @@
     margin-left: 20px;
     margin-right: 20px;
     margin-bottom:20px;
-    padding: 10px;
-    border-radius: 20px;
+    padding: 32px;
+    border-radius: 12px;
     background-color: #F0F0F0;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-
+    /*box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);*/
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15), 0 3px 10px 0 rgba(0, 0, 0, 0.1);
 }
 
 .alertsContainer{
@@ -22,7 +22,7 @@
     width: 35%;
     height: 90%;
     margin: 1rem;
-    padding: 5px;
+    padding: 8px;
     border-radius: 10px;
     border-style: solid;
     border-width: thin;
@@ -30,6 +30,6 @@
 }
 .alertsTitle{
     text-align: center;
-    font-weight: 800;
+    font-weight: 700;
     font-size: 2em;
 }
