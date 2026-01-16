@@ -10,20 +10,62 @@ type TeamMember = {
 
 const team: TeamMember[] = [
   {
-    name: "person1",
-    role: "Founder / Backend",
+    name: "Noah Teitlebaum",
+    role: "Team Lead",
     bio: "role description",
     imgSrc: "",
   },
   {
-    name: "person 2",
-    role: "Frontend / UX",
+    name: "Vedanshi Parekh",
+    role: "Team Lead",
     bio: "role description",
     imgSrc: "",
   },
   {
-    name: "person 3",
-    role: "ML / Data",
+    name: "Pratik Gupta",
+    role: "Backend/AI",
+    bio: "role description.",
+    imgSrc: "",
+  },
+  {
+    name: "Daniel He",
+    role: "Backend/AI",
+    bio: "role description.",
+    imgSrc: "",
+  },
+  {
+    name: "Adison Seo",
+    role: "Backend/AI",
+    bio: "role description.",
+    imgSrc: "",
+  },
+  {
+    name: "Krish Singh",
+    role: "Backend/AI",
+    bio: "role description.",
+    imgSrc: "",
+  },
+  {
+    name: "Aidan Naccarato",
+    role: "Frontend",
+    bio: "role description.",
+    imgSrc: "",
+  },
+  {
+    name: "Baichaun Ren",
+    role: "Data/Eng",
+    bio: "role description.",
+    imgSrc: "",
+  },
+  {
+    name: "Justin Jubinville",
+    role: "Data/Eng",
+    bio: "role description.",
+    imgSrc: "",
+  },
+  {
+    name: "Zayan Suri",
+    role: "Data/Eng",
     bio: "role description.",
     imgSrc: "",
   },
