@@ -40,8 +40,8 @@ export default function FooterBar() {
         </div>
 
         <a href="mailto:anacca@uwo.ca" className={styles.emailLink}>
-          Contact{" "}
-          <img src="./email_Icon.png" className="w-8 h-6.5 object-contain" />
+          Contact
+          <img src="./mail.svg" className="w-8 h-6.5 object-contain" />
         </a>
 
         {routes.map((r) => (

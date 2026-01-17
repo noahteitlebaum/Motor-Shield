@@ -9,6 +9,7 @@ import GraphCard from "../components/cards/GraphCard";
 export default function Dashboard(){
     return(
         <>
+        <div className="bg-[#f6f9fc]"> {/* #F0F2F5*/}
             <NavigationBar/>
             <StatusSection/> {/*the "grey box" section, including the elements inside it*/}
 
@@ -22,6 +23,7 @@ export default function Dashboard(){
 
             
             {/*Footer is in layout.tsx under the app folder */}
+        </div>
         </>
     )
 }

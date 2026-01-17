@@ -14,7 +14,6 @@
     background-color: var(--status-box-bg);
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     transition: background-color 0.3s ease;
-
 }
 
 .alertsContainer{
@@ -23,7 +22,7 @@
     width: 35%;
     height: 90%;
     margin: 1rem;
-    padding: 5px;
+    padding: 8px;
     border-radius: 10px;
     border-style: solid;
     border-width: thin;
@@ -31,6 +30,6 @@
 }
 .alertsTitle{
     text-align: center;
-    font-weight: 800;
+    font-weight: 700;
     font-size: 2em;
 }
