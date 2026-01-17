@@ -19,15 +19,24 @@ export default function NavigationBar() {
   return (
     <>
       <nav className={styles.navContainer}>
-                <p className={styles.projectName}>Motorshield</p>
-                <p style={{
-                  color:"#636262ca", 
-                  alignSelf:"center",
-                  marginRight:"1em",
-                }}>Predict failure before it happens.</p>
+        <p className={styles.projectName}>Motorshield</p>
+        <p
+          style={{
+            color: "var(--text-secondary)",
+            alignSelf: "center",
+            marginRight: "1em",
+          }}
+        >
+          Predict failure before it happens.
+        </p>
 
         {route.map((r) => (
-          <NavButton key={r.link} name={r.name} link={r.link} active={pathname === r.link} />
+          <NavButton
+            key={r.link}
+            name={r.name}
+            link={r.link}
+            active={pathname === r.link}
+          />
         ))}
       </nav>
       <div className={styles.navSpacer} aria-hidden />

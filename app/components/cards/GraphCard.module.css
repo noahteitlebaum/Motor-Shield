@@ -30,7 +30,7 @@
     height: 100%;
     transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
     will-change: transform;
-    background: #A4A1A1;
+    background: var(--graph-card-bg);
 
 }
 
@@ -80,7 +80,7 @@
     overflow-y: auto;
     scrollbar-width: thin;
     border-radius: 20px;
-    background-color: #cfc9c9;
+    background-color: var(--graph-card-back-bg);
 }
 
 .flipped{
@@ -135,7 +135,8 @@ font-weight: 900;
 .titleBox{
 position: absolute;
 top: 15px;
-background-color: white;
+background-color: var(--card-bg);
+color: var(--text-primary);
 border-radius: 25px;
 width: fit-content;
 max-width:90%;
@@ -149,5 +150,5 @@ white-space: nowrap;
 .description{
 text-wrap: wrap;
 overflow-wrap: break-word;
-color: black;
+color: var(--text-primary);
 }
