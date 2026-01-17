@@ -14,7 +14,9 @@
   z-index: 50;
   pointer-events: auto;
   /*background: linear-gradient(90deg, #78b1d5  0%, #A6C0D0 100%);*/
-  background: #d0e5f1; /*#A6C0D0;*/
+  background: var(--card-bg); /* Use card-bg or dedicated nav-bg */
+  border-bottom: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .footerContainer{
@@ -26,7 +28,9 @@
   padding: 32px;
   z-index: 50;
   pointer-events: auto;
-  background: rgb(238, 238, 238); /*#A6C0D0;*/
+  background: var(--card-bg);
+  border-top: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .footerLogo{
@@ -48,8 +52,8 @@
   margin-right: auto;
   margin-left: 6rem;
   margin-bottom: 0.4em;
-  font: #000;
-  font-size: 2.5em;
+  color: var(--text-primary);
+  font-size: 2em;
 }
 
 .navSpacer {
@@ -63,8 +67,8 @@
   width: 200px;
   height: 80px;
   border-radius: 40px;
-  background: #6299BB;
-  color: #36404D;
+  background: var(--status-box-bg); /* Adaptive grey */
+  color: var(--text-primary);
   text-decoration: none;
   font-weight: 600;
   transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
@@ -83,7 +87,7 @@
 }
 
 .active {
-  background: linear-gradient(90deg, #A6C0D0 0%, #6299BB 100%);
+  background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%); /* Blue to Emerald */
   color: #ffffff;
 }
 
