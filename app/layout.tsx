@@ -1,62 +1,54 @@
-import type { Metadata } from "next";
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Montserrat } from 'next/font/google'
-import "./globals.css";
-import FooterBar from "./components/NavigationBar/FooterBar";
+import "@/styles/globals.css";
+import { Metadata, Viewport } from "next";
+import { Link } from "@heroui/link";
+import clsx from "clsx";
 
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  variable: '--font-montserrat',
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
-})
+import { Providers } from "./providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { siteConfig } from "@/config/site";
+import { fontSans } from "@/config/fonts";
+import { Navbar } from "@/components/navbar";
 
 export const metadata: Metadata = {
-  title: "Motorshield",
-  description: "",
+  title: {
+    default: siteConfig.name,
+    template: `%s - ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
-import Link from "next/link";
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "white" },
+    { media: "(prefers-color-scheme: dark)", color: "black" },
+  ],
+};
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased min-h-screen flex flex-col`}> {/*forcing body to be at least as tall as window; stacking elements vertically*/}
-
-        {/* Top-left logo (site-wide) */}
-        <header className="fixed top-2 left-4 z-60">
-          <Link href="/" className="inline-block" aria-label="Go to home">
-            <Image
-              src="/MotorShieldLogo.png"
-              alt="Motor Shield logo"
-              className="w-20 h-20 object-contain"
-              width={56}
-              height={56}
-              priority
-            />
-          </Link>
-        </header>
-
-        <main className={"flex-grow"}>
-          {children}
-        </main>
-        
-      <FooterBar/>
+    <html suppressHydrationWarning lang="en">
+      <head />
+      <body
+        className={clsx(
+          "min-h-screen text-foreground bg-background font-sans antialiased",
+          fontSans.variable,
+        )}
+      >
+        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+          <div className="relative flex flex-col h-screen">
+            <Navbar />
+            <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+              {children}
+            </main>
+          </div>
+        </Providers>
       </body>
     </html>
   );

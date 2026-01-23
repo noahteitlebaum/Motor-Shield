@@ -1,18 +1,5 @@
-"use client"
+import { redirect } from "next/navigation";
 
-import {useEffect} from 'react'
-import { useRouter } from 'next/navigation'
-
-import './globals.css'
-
-function App(){
-  const router = useRouter()
-    useEffect(() => {
-      
-      router.push('/Dashboard')
-    })
-
-    return <p>Redirecting...</p>
+export default function Home() {
+  redirect("/Dashboard");
 }
-
-export default App

@@ -1,29 +1,37 @@
-"use client"
+"use client";
 
-import CardTest from "../components/cards/CardTest";
-import Link from "next/link"
-import NavigationBar from "../components/NavigationBar/NavigationBar"
-import StatusSection from "../components/dashboardComponents/StatusSection";
-import GraphCard from "../components/cards/GraphCard";
+import GraphCard from "@/components/GraphCard";
+import StatusSection from "@/components/StatusSection";
 
-export default function Dashboard(){
-    return(
-        <>
-        <div className="bg-[#f6f9fc]"> {/* #F0F2F5*/}
-            <NavigationBar/>
-            <StatusSection/> {/*the "grey box" section, including the elements inside it*/}
+export default function Dashboard() {
+  return (
+    <div className="w-full flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-4xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-default-500">
+          Monitor real-time motor status and analytics.
+        </p>
+      </div>
 
+      <StatusSection />
 
-            <h1>This is the dashboard page</h1>
-            <div style={{display:"flex", alignContent:"space-between", justifyContent:"left", gap:"5%"}}>
-            <GraphCard title="test1" description="desc for graphcard number one." reactGraph={null}/>
-            <GraphCard title="test two" description="desc for graphcard number 2." reactGraph={null}/>
-            <GraphCard title="test 3" description="desc for graphcard number 3." reactGraph={null}/>
-            </div>
-
-            
-            {/*Footer is in layout.tsx under the app folder */}
-        </div>
-        </>
-    )
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+        <GraphCard
+          description="Frequency domain analysis of motor vibrations showing potential bearing faults detected at 120Hz harmonic."
+          reactGraph={null}
+          title="Vibration Analysis"
+        />
+        <GraphCard
+          description="Real-time phase current monitoring. Spikes indicate increased load or potential short circuits in the windings."
+          reactGraph={null}
+          title="Current Draw"
+        />
+        <GraphCard
+          description="Stator winding temperature readings. Sustained high temperatures may lead to insulation degradation."
+          reactGraph={null}
+          title="Temperature"
+        />
+      </div>
+    </div>
+  );
 }
