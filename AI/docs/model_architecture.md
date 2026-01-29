@@ -1,77 +1,66 @@
-# Model selection and architecture details
+# Model Architectures
 
-This document explains the model options and the exact architecture used in the latest training run. Code lives in [processing/train_model.py](processing/train_model.py).
+This document details the neural network architectures available for motor fault detection.
 
-## 1) Model options
+## 1. Improved CNN (Default)
 
-### Simple CNN (baseline)
-- Lightweight 1D CNN for fast iteration and low compute.
-- Use when you need very fast inference or a quick baseline.
+The **ImprovedMotorFaultCNN** uses residual connections and channel attention to capture complex patterns in the multi-channel time-series data.
 
-### Improved CNN (current default)
-- Residual blocks with batch normalization
-- Channel attention for feature reweighting
-- Dual pooling (avg + max) before the classifier
+### Architecture Diagram
 
-The improved model is defined in `ImprovedMotorFaultCNN` in [processing/train_model.py](processing/train_model.py).
+```mermaid
+graph TD
+    Input["Input (Batch, 6, 200)"] --> Conv1["Initial Conv (7x7, 64)"]
+    Conv1 --> BN1["BatchNorm + ReLU"]
+    BN1 --> MP1["MaxPool (Stride 2)"]
 
-## 2) Improved CNN layer layout (current default)
+    MP1 --> RB1["ResBlock 1 (128)"]
+    RB1 --> CA1["Channel Attention"]
 
-Input shape: (batch, 6 channels, 200 time steps)
+    CA1 --> RB2["ResBlock 2 (256)"]
+    RB2 --> CA2["Channel Attention"]
 
-1) Initial block
-- Conv1d: 6 → 64, kernel 7, padding 3
-- BatchNorm1d + ReLU
-- MaxPool1d (stride 2)
+    CA2 --> RB3["ResBlock 3 (512)"]
+    RB3 --> CA3["Channel Attention"]
 
-2) Residual blocks + attention
-- ResBlock: 64 → 128, stride 2 + ChannelAttention(128)
-- ResBlock: 128 → 256, stride 2 + ChannelAttention(256)
-- ResBlock: 256 → 512 + ChannelAttention(512)
+    CA3 --> DualPool["Global Avg + Max Pool"]
+    DualPool --> FC["Classifier (1024 → 256 → 128 → 4)"]
+    FC --> Output["Fault Prediction"]
+```
 
-3) Global pooling and classifier
-- AdaptiveAvgPool1d + AdaptiveMaxPool1d (concatenate)
-- Linear 1024 → 256 → 128 → num_classes
-- BatchNorm + ReLU + Dropout between FC layers
+---
 
-## 3) Training configuration (latest run)
+## 2. Transformer
 
-Run: 10 epochs, batch size 32, learning rate 0.001
+The **MotorFaultTransformer** applies self-attention across the time dimension, allowing the model to focus on specific temporal events (spikes, shifts) more effectively than traditional convolutions.
 
-Training components:
-- Optimizer: AdamW
-- LR scheduler: ReduceLROnPlateau
-- Early stopping: patience 15
-- Gradient clipping: max norm 1.0
-- Loss: CrossEntropyLoss
+### Architecture Diagram
 
-## 4) Real results from the latest run
+```mermaid
+graph TD
+    Input["Input (Batch, 6, 200)"] --> Trans["Transpose (Batch, 200, 6)"]
+    Trans --> Proj["Input Projection (6 → d_model)"]
+    Proj --> PE["Positional Encoding"]
 
-From the last training run in this workspace:
-- Train: 30,261 samples
-- Validation: 6,484 samples
-- Test: 6,485 samples
-- Improved model parameters: 2,113,860
+    subgraph "Encoder Stack (N Layers)"
+        PE --> Attn["Multi-Head Self-Attention"]
+        Attn --> FFN["Feed-Forward Network"]
+    end
 
-Classification report (test set):
-- Faulty_Control_Switch: precision 1.00, recall 1.00, f1 1.00 (support 1,206)
-- Faulty_Open_Circuit: precision 1.00, recall 1.00, f1 1.00 (support 1,206)
-- Faulty_Short_Circuit: precision 1.00, recall 1.00, f1 1.00 (support 1,131)
-- Healthy: precision 1.00, recall 1.00, f1 1.00 (support 2,942)
-- Overall accuracy: 1.00
+    FFN --> GAP["Global Average Pooling"]
+    GAP --> Classifier["Classifier (d_model → 64 → 4)"]
+    Classifier --> Output["Fault Prediction"]
+```
 
-## 5) Output artifacts
+---
 
-Model and evaluation outputs are stored under the artifacts folder by default:
-- artifacts/motor_fault_model.pth
-- artifacts/model_metadata.pkl
-- artifacts/confusion_matrix.png
-- artifacts/training_history.png
-- artifacts/visualizations (detailed plots)
+## 3. Comparison Summary
 
-## 6) How to choose a model
+| Feature         | Improved CNN                       | Transformer                      |
+| --------------- | ---------------------------------- | -------------------------------- |
+| **Core Layer**  | Residual 1D Conv                   | Multi-Head Attention             |
+| **Parameters**  | ~2.1 Million                       | ~0.4 Million (Configurable)      |
+| **Strength**    | Excellent local feature extraction | Captures long-range dependencies |
+| **Suitability** | General motor fault patterns       | Complex, non-periodic transients |
 
-- Use the improved model for accuracy-focused workflows.
-- Use the simple model when you need faster iteration or lower compute.
-
-Switch models with the --model_type flag in [processing/train_model.py](processing/train_model.py).
+---
