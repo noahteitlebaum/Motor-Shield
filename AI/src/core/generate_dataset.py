@@ -265,7 +265,9 @@ def get_fault_time_from_filename(filename):
     return None
 
 def get_files():
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Navigate from src/core up to AI directory
+    base_dir = os.path.dirname(os.path.dirname(script_dir))
     files_dir = os.path.join(base_dir, 'files')
     
     # Structure: {'ClassPrefix': [ {'path':..., 'label_prefix':..., ...} ] }
