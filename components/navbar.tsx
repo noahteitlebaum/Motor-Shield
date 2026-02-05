@@ -38,7 +38,7 @@ export const Navbar = () => {
           <NextLink className="flex justify-start items-center gap-1" href="/">
             <Image
               alt="MotorShield"
-              className="object-contain" // removed w-10 h-10, handled by width/height
+              className="object-contain hover:scale-110 transition-transform cursor-pointer" // removed w-10 h-10, handled by width/height
               height={40}
               src="/MotorShieldLogo.png"
               width={40}
@@ -52,12 +52,19 @@ export const Navbar = () => {
               <NextLink
                 className={clsx(
                   linkStyles({ color: "foreground" }),
+                  "group relative py-1",
                   "data-[active=true]:text-primary data-[active=true]:font-medium",
                 )}
                 color="foreground"
                 href={item.href}
               >
-                {item.label}
+                <span>{item.label}</span>
+
+                {/* Left half of the line */}
+        <span className="absolute -bottom-0.5 left-1/2 w-0 transition-all h-0.5 bg-gray-400 group-hover:w-1/2"></span>
+        {/* Right half of the line */}
+        <span className="absolute -bottom-0.5 right-1/2 w-0 transition-all h-0.5 bg-gray-400 group-hover:w-1/2"></span>
+
               </NextLink>
             </NavbarItem>
           ))}

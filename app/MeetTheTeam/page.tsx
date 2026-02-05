@@ -2,6 +2,7 @@
 
 import { Avatar } from "@heroui/avatar";
 import { Card, CardBody } from "@heroui/card";
+import FadeInUp from "../components/animations/FadeInUp";
 
 type TeamMember = {
   name: string;
@@ -15,7 +16,7 @@ const team: TeamMember[] = [
     name: "Noah Teitlebaum",
     role: "Team Lead",
     bio: "role description",
-    imgSrc: "",
+    imgSrc: "/NoahTeitlebaumHeadshot.jpeg",
   },
   {
     name: "Vedanshi Parekh",
@@ -27,7 +28,7 @@ const team: TeamMember[] = [
     name: "Pratik Gupta",
     role: "Backend/AI",
     bio: "role description.",
-    imgSrc: "",
+    imgSrc: "/PratikGuptaHeadshot.jpeg",
   },
   {
     name: "Daniel He",
@@ -39,7 +40,7 @@ const team: TeamMember[] = [
     name: "Adison Seo",
     role: "Backend/AI",
     bio: "role description.",
-    imgSrc: "",
+    imgSrc: "/AdisonSeoHeadshot.jpg",
   },
   {
     name: "Krish Singh",
@@ -51,31 +52,32 @@ const team: TeamMember[] = [
     name: "Aidan Naccarato",
     role: "Frontend",
     bio: "role description.",
-    imgSrc: "",
+    imgSrc: "/AidanNaccaratoHeadshot.jpg",
   },
   {
     name: "Baichaun Ren",
     role: "Data/Eng",
     bio: "role description.",
-    imgSrc: "",
+    imgSrc: "/Baichuan RenHeadshot.jpeg",
   },
   {
     name: "Justin Jubinville",
     role: "Data/Eng",
     bio: "role description.",
-    imgSrc: "",
+    imgSrc: "/JustinJubinvilleHeadshot.jpg",
   },
   {
     name: "Zayan Suri",
     role: "Data/Eng",
     bio: "role description.",
-    imgSrc: "",
+    imgSrc: "/ZayanSuriHeadshot.jpeg",
   },
 ];
 
 export default function MeetTheTeam() {
   return (
     <div className="w-full flex flex-col items-center gap-8 py-8">
+      <FadeInUp>
       <div className="text-center space-y-2">
         <h1 className="text-4xl font-bold tracking-tight">Meet the Team</h1>
         <p className="text-default-500">The people building MotorShield.</p>
@@ -107,6 +109,7 @@ export default function MeetTheTeam() {
           </Card>
         ))}
       </div>
+      </FadeInUp>
     </div>
   );
 }

@@ -96,7 +96,7 @@ export default function GraphCard({
         transition={{ duration: 0.6, animationDirection: "normal" }}
       >
         {/* Front Face */}
-        <Card className="absolute w-full h-full backface-hidden">
+        <Card className={`absolute w-full h-full backface-hidden ${isFlipped? "pointer-events-none" : ""}`}>
           <CardHeader className="flex justify-between items-center z-10 w-full p-4">
             <div className="bg-default-100 rounded-full px-4 py-1 shadow-sm mx-auto">
               <p className="font-bold text-default-600 truncate max-w-[150px]">
@@ -105,10 +105,10 @@ export default function GraphCard({
             </div>
             <Button
               isIconOnly
-              className="absolute top-2 right-2 rounded-full"
+              className="absolute top-2 right-2 rounded-full hover:scale-110 transition-transform"
               size="sm"
               variant="flat"
-              onPress={() => setIsFlipped(true)}
+              onPress={() => setIsFlipped(!isFlipped)}
             >
               ⟳
             </Button>
@@ -120,7 +120,7 @@ export default function GraphCard({
 
         {/* Back Face */}
         <Card
-          className="absolute w-full h-full backface-hidden"
+          className={`absolute w-full h-full backface-hidden ${!isFlipped? "pointer-events-none" : ""}`}
           style={{ transform: "rotateY(180deg)" }}
         >
           <CardHeader className="flex justify-between items-center z-10 w-full p-4">
@@ -131,10 +131,10 @@ export default function GraphCard({
             </div>
             <Button
               isIconOnly
-              className="absolute top-2 right-2 rounded-full"
+              className="absolute top-2 right-2 rounded-full hover:scale-110 transition-transform"
               size="sm"
               variant="flat"
-              onPress={() => setIsFlipped(false)}
+              onPress={() => setIsFlipped(!isFlipped)}
             >
               ⟳
             </Button>
