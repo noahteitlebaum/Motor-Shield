@@ -1,4 +1,10 @@
 data/
+backups/
+artifacts/
+outputs/
+
+*.npz
+artifacts/*.npz
 
 # Windows thumbnail cache files
 Thumbs.db
