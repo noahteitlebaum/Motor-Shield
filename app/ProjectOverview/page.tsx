@@ -2,15 +2,19 @@
 
 import { Card, CardBody } from "@heroui/card";
 import { Chip } from "@heroui/chip";
+import FadeInUp from "../components/animations/FadeInUp";
 
 export default function ProjectOverview() {
   return (
     <div className="w-full flex flex-col items-center gap-10 py-12 px-4">
       {/* Header */}
       <div className="max-w-4xl w-full flex flex-col gap-4">
+        <FadeInUp delay={0.1}>
         <p className="text-sm font-bold text-blue-500 uppercase tracking-widest leading-none">
           MotorShield
         </p>
+        </FadeInUp>
+        <FadeInUp delay={0.2}>
         <h1 className="text-5xl font-black tracking-tighter text-foreground">
           Project Overview
         </h1>
@@ -20,10 +24,12 @@ export default function ProjectOverview() {
           to estimate risk early, saving money and keeping systems running
           smoothly.
         </p>
+        </FadeInUp>
       </div>
 
       {/* Why it matters */}
       <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-3 gap-6">
+        <FadeInUp delay={0.3}>
         <Card className="p-4 bg-default-50">
           <CardBody>
             <h3 className="text-xl font-bold mb-2">Less downtime</h3>
@@ -34,6 +40,8 @@ export default function ProjectOverview() {
             </p>
           </CardBody>
         </Card>
+        </FadeInUp>
+        <FadeInUp delay={0.3}>
         <Card className="p-4 bg-default-50">
           <CardBody>
             <h3 className="text-xl font-bold mb-2">Lower cost</h3>
@@ -43,6 +51,8 @@ export default function ProjectOverview() {
             </p>
           </CardBody>
         </Card>
+        </FadeInUp>
+        <FadeInUp delay={0.3}>
         <Card className="p-4 bg-default-50">
           <CardBody>
             <h3 className="text-xl font-bold mb-2">Clear decisions</h3>
@@ -52,10 +62,12 @@ export default function ProjectOverview() {
             </p>
           </CardBody>
         </Card>
+      </FadeInUp>
       </div>
 
       {/* How it works */}
       <div className="max-w-4xl w-full flex flex-col gap-8">
+        <FadeInUp delay={0.4}>
         <div>
           <h2 className="text-3xl font-bold mb-4">How it works</h2>
           <p className="text-default-500 max-w-2xl">
@@ -65,42 +77,54 @@ export default function ProjectOverview() {
             dashboard.
           </p>
         </div>
+        </FadeInUp>
 
         {/* Visual Flow Diagram Placeholder */}
+        <FadeInUp>
         <Card className="p-8 bg-default-50 items-center justify-center">
           <PipelineDiagram />
         </Card>
+        </FadeInUp>
 
         <div className="flex flex-col gap-4">
+          <FadeInUp>
           <Step
             desc="We generate motor behavior in a controlled environment. This creates realistic data with both healthy and failing conditions."
             icon={<SimulinkIcon />}
             num="1"
             title="Simulink Simulation"
           />
+          </FadeInUp>
+          <FadeInUp>
           <Step
             desc="We train a model to detect patterns that appear before failure happens. Our current best approach is a CNN -> LSTM pipeline for time-series data."
             icon={<AIModelIcon />}
             num="2"
             title="Deep Learning Model"
           />
+          </FadeInUp>
+          <FadeInUp>
           <Step
             desc="Eventually, we'll collect real motor readings using sensors and a microcontroller, then run predictions in real time to validate performance outside simulation."
             icon={<SensorIcon />}
             num="3"
             title="Microcontroller + Sensors"
           />
+          </FadeInUp>
+          <FadeInUp>
           <Step
             desc="The web app visualizes motor health, trends, and failure risk in a clean format that's easy to understand."
             icon={<DashboardIcon />}
             num="4"
             title="Website Dashboard"
           />
+          </FadeInUp>
         </div>
       </div>
 
       {/* Example output visual */}
       <Card className="max-w-4xl w-full p-8 bg-default-50">
+        <FadeInUp>
         <div className="flex justify-between items-start mb-6">
           <div>
             <p className="text-xs font-bold text-blue-500 uppercase mb-1">
@@ -135,7 +159,10 @@ export default function ProjectOverview() {
         <div className="h-3 w-full bg-default-200 rounded-full overflow-hidden">
           <div className="h-full bg-success w-[82%] rounded-full" />
         </div>
+      </FadeInUp>
+
       </Card>
+
     </div>
   );
 }

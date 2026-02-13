@@ -34,7 +34,7 @@ const team: TeamMember[] = [
     name: "Daniel He",
     role: "Backend/AI",
     bio: "role description.",
-    imgSrc: "",
+    imgSrc: "/DanielHeHeadshot.jpg",
   },
   {
     name: "Adison Seo",
@@ -80,7 +80,7 @@ export default function MeetTheTeam() {
       <FadeInUp>
       <div className="text-center space-y-2">
         <h1 className="text-4xl font-bold tracking-tight">Meet the Team</h1>
-        <p className="text-default-500">The people building MotorShield.</p>
+        <p className="text-default-500 pb-5">The people building MotorShield.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl px-4">
