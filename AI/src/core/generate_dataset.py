@@ -278,27 +278,7 @@ def get_files():
             grouped_files[group_key] = []
         grouped_files[group_key].append(f_info)
 
-    # 1. BLDC_basedata
-    base_map = {
-        'BLDC_Healthy.csv': ('Healthy', True, 'Healthy'),
-        'BLDC_OpenCircuit.csv': ('Open_Circuit', False, 'Faulty_Open_Circuit'),
-        'BLDC_Short.csv': ('Short_Circuit', False, 'Faulty_Short_Circuit'),
-        'BLDC_ControlSwitch.csv': ('Control_Switch', False, 'Faulty_Control_Switch')
-    }
-    
-    basedata_dir = os.path.join(files_dir, 'BLDC_basedata')
-    if os.path.exists(basedata_dir):
-        for fname in os.listdir(basedata_dir):
-            if fname in base_map:
-                label_prefix, is_healthy, group = base_map[fname]
-                add_file(group, {
-                    'path': os.path.join(basedata_dir, fname),
-                    'label_prefix': label_prefix,
-                    'is_healthy': is_healthy,
-                    'fault_time': 0.2
-                })
-
-    # 2. Healthy
+    # 1. Healthy
     healthy_dir = os.path.join(files_dir, 'Healthy')
     if os.path.exists(healthy_dir):
         for fname in glob.glob(os.path.join(healthy_dir, "*.csv")):
@@ -309,17 +289,17 @@ def get_files():
                 'fault_time': None
             })
 
-    # 3. Advanced
-    advanced_dir = os.path.join(files_dir, 'Advanced')
-    if os.path.exists(advanced_dir):
-        adv_map = {
+    # 2. Faulty
+    faulty_dir = os.path.join(files_dir, 'Faulty')
+    if os.path.exists(faulty_dir):
+        fault_map = {
             'ControlSwitch': ('Control_Switch', 'Faulty_Control_Switch'),
             'InterTurn': ('Inter_Turn', 'Faulty_Inter_Turn'), 
             'OpenCircuit': ('Open_Circuit', 'Faulty_Open_Circuit')
         }
         
-        for subdir, (label, group) in adv_map.items():
-            path = os.path.join(advanced_dir, subdir)
+        for subdir, (label, group) in fault_map.items():
+            path = os.path.join(faulty_dir, subdir)
             if os.path.exists(path):
                 for fname in glob.glob(os.path.join(path, "*.csv")):
                     ft = get_fault_time_from_filename(os.path.basename(fname))
