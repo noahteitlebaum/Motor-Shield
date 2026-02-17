@@ -10,7 +10,7 @@ export default function Dashboard() {
 <FadeInUp>
       <div className="flex flex-col gap-2">
         <h1 className="text-4xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-default-500 pb-5">
+        <p className="text-default-700 pb-5">
           Monitor real-time motor status and analytics.
         </p>
       </div>

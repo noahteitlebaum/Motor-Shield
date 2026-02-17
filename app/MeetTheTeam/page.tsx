@@ -22,7 +22,7 @@ const team: TeamMember[] = [
     name: "Vedanshi Parekh",
     role: "Team Lead",
     bio: "role description",
-    imgSrc: "",
+    imgSrc: "VedanshiParekhHeadshot.jpg",
   },
   {
     name: "Pratik Gupta",
@@ -46,7 +46,7 @@ const team: TeamMember[] = [
     name: "Krish Singh",
     role: "Backend/AI",
     bio: "role description.",
-    imgSrc: "",
+    imgSrc: "KrishHeadshotCrop.jpg",
   },
   {
     name: "Aidan Naccarato",
