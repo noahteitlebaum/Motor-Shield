@@ -1,0 +1,60 @@
+{
+  "top1_acc": 1.0,
+  "top2_acc": 1.0,
+  "macro_f1": 1.0,
+  "macro_precision": 1.0,
+  "macro_recall": 1.0,
+  "macro_auc": 1.0,
+  "per_class": {
+    "Faulty_Control_Switch": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 128.0
+    },
+    "Faulty_Inter_Turn": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 158.0
+    },
+    "Faulty_Open_Circuit": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 118.0
+    },
+    "Healthy": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 382.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      128,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      158,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      118,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      382
+    ]
+  ]
+}
