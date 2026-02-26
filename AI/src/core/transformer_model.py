@@ -97,3 +97,78 @@ class MotorFaultTransformer(nn.Module):
         # Classification
         x = self.classifier(x)
         return x
+
+
+class HybridCNNTransformer(nn.Module):
+    """
+    CNN front-end for local patterns + Transformer encoder for global context.
+    Keeps sequence length shorter for faster attention while retaining detail.
+    """
+
+    def __init__(
+        self,
+        num_classes,
+        input_channels=6,
+        d_model=128,
+        nhead=4,
+        num_layers=3,
+        dim_feedforward=256,
+        dropout=0.3,
+        encoder_dropout=None,
+        classifier_dropout=None,
+        max_len=200,
+    ):
+        super(HybridCNNTransformer, self).__init__()
+
+        self.d_model = d_model
+
+        encoder_dropout = encoder_dropout if encoder_dropout is not None else dropout
+        classifier_dropout = classifier_dropout if classifier_dropout is not None else dropout
+
+        # Convolutional stem reduces sequence length and enriches features.
+        self.stem = nn.Sequential(
+            nn.Conv1d(input_channels, 48, kernel_size=7, stride=2, padding=3),
+            nn.BatchNorm1d(48),
+            nn.GELU(),
+            nn.Conv1d(48, d_model, kernel_size=5, stride=2, padding=2),
+            nn.BatchNorm1d(d_model),
+            nn.GELU(),
+        )
+
+        self.pos_encoder = PositionalEncoding(d_model, max_len=max_len, dropout=encoder_dropout)
+
+        encoder_layers = nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=nhead,
+            dim_feedforward=dim_feedforward,
+            dropout=encoder_dropout,
+            batch_first=True,
+        )
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layers, num_layers=num_layers)
+
+        # Aggregate both average and max pooled signals for stability.
+        self.classifier = nn.Sequential(
+            nn.Linear(d_model * 2, 128),
+            nn.GELU(),
+            nn.Dropout(classifier_dropout),
+            nn.Linear(128, num_classes),
+        )
+
+        self._init_weights()
+
+    def _init_weights(self):
+        for p in self.parameters():
+            if p.dim() > 1:
+                nn.init.xavier_uniform_(p)
+
+    def forward(self, x):
+        # x: [Batch, Channels, Length]
+        x = self.stem(x)  # -> [Batch, d_model, Length/4]
+        x = x.transpose(1, 2) * math.sqrt(self.d_model)
+        x = self.pos_encoder(x)
+        x = self.transformer_encoder(x)
+
+        avg_pool = x.mean(dim=1)
+        max_pool, _ = x.max(dim=1)
+        x = torch.cat([avg_pool, max_pool], dim=1)
+        return self.classifier(x)
