@@ -1,13 +1,17 @@
 import os
+import json
+import csv
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, roc_auc_score
 import argparse
 import pickle
 # from train_model import ImprovedMotorFaultCNN, MotorFaultCNN # Removed self-import
@@ -15,7 +19,7 @@ import pickle
 # Actually, since we cleaned transformer_model.py, we can import directly.
 # However, let's keep it clean.
 try:
-    from transformer_model import MotorFaultTransformer
+    from transformer_model import HybridCNNTransformer, MotorFaultTransformer
 except ImportError:
     pass # Will handle later or assuming it's available
 
@@ -289,33 +293,59 @@ class MotorFaultCNN(nn.Module):
         x = self.classifier(x)
         return x
 
+def _build_cosine_warmup_scheduler(optimizer, epochs, warmup_epochs=1, min_lr_ratio=0.1):
+    """Create a cosine annealing scheduler with linear warmup."""
+    warmup_epochs = max(0, warmup_epochs)
+
+    def lr_lambda(current_epoch):
+        if warmup_epochs > 0 and current_epoch < warmup_epochs:
+            return float(current_epoch + 1) / float(warmup_epochs)
+        progress = (current_epoch - warmup_epochs) / max(1, (epochs - warmup_epochs - 1))
+        cosine = 0.5 * (1 + math.cos(math.pi * progress))
+        return min_lr_ratio + (1 - min_lr_ratio) * cosine
+
+    return LambdaLR(optimizer, lr_lambda=lr_lambda)
+
+
 def train_model(model, train_loader, val_loader, test_loader, epochs=100, learning_rate=0.001, 
-                patience=15, model_path='motor_fault_model.pth', device=None, class_weights=None):
+                patience=15, model_path='motor_fault_model.pth', device=None, class_weights=None,
+                label_smoothing=0.0, scheduler_type='cosine', warmup_epochs=1, min_lr_ratio=0.1):
     if device is None:
         device = get_device()
-        
+
+    loss_kwargs = {}
     if class_weights is not None:
         class_weights = class_weights.to(device)
         print(f"Using class weights: {class_weights}")
-        criterion = nn.CrossEntropyLoss(weight=class_weights)
-    else:
-        criterion = nn.CrossEntropyLoss()
+        loss_kwargs['weight'] = class_weights
+    if label_smoothing > 0:
+        print(f"Using label smoothing: {label_smoothing}")
+        loss_kwargs['label_smoothing'] = label_smoothing
+    criterion = nn.CrossEntropyLoss(**loss_kwargs)
         
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
-    
-    # Learning rate scheduler
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode='max', factor=0.5, patience=5
-    )
+
+    if scheduler_type == 'cosine':
+        scheduler = _build_cosine_warmup_scheduler(
+            optimizer, epochs=epochs, warmup_epochs=warmup_epochs, min_lr_ratio=min_lr_ratio
+        )
+        scheduler_mode = 'step'
+    else:
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, mode='max', factor=0.5, patience=5
+        )
+        scheduler_mode = 'plateau'
     
     train_losses = []
     val_accuracies = []
     test_accuracies = []
+    lr_history = []
     
     best_val_acc = 0.0
     patience_counter = 0
     
     for epoch in range(epochs):
+        lr_history.append(optimizer.param_groups[0]['lr'])
         # Training phase
         model.train()
         running_loss = 0.0
@@ -378,7 +408,10 @@ def train_model(model, train_loader, val_loader, test_loader, epochs=100, learni
         test_accuracies.append(test_acc)
         
         # Learning rate scheduling
-        scheduler.step(val_acc)
+        if scheduler_mode == 'plateau':
+            scheduler.step(val_acc)
+        else:
+            scheduler.step()
         
         print(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss:.4f}, "
               f"Train Acc: {train_acc:.2f}%, Val Acc: {val_acc:.2f}%, Test Acc: {test_acc:.2f}%")
@@ -401,28 +434,32 @@ def train_model(model, train_loader, val_loader, test_loader, epochs=100, learni
                 print(f"\nEarly stopping triggered after {epoch+1} epochs")
                 break
         
-    return train_losses, val_accuracies, test_accuracies
+    return train_losses, val_accuracies, test_accuracies, lr_history
 
-def evaluate_model(model, test_loader, classes, filename='confusion_matrix.png', device=None):
+def evaluate_model(model, test_loader, classes, filename='confusion_matrix.png', device=None, metrics_path=None):
     if device is None:
         device = get_device()
         
     model.eval()
     all_preds = []
     all_labels = []
+    all_probs = []
     
     with torch.no_grad():
         for inputs, labels in test_loader:
             inputs, labels = inputs.to(device), labels.to(device)
             outputs = model(inputs)
+            probs = torch.softmax(outputs, dim=1)
             _, predicted = torch.max(outputs.data, 1)
             
             all_preds.extend(predicted.cpu().numpy())
             all_labels.extend(labels.cpu().numpy())
+            all_probs.extend(probs.cpu().numpy())
             
     print("\nClassification Report:")
     # Explicitly pass labels to handle cases where test set is missing some classes (e.g. rare faults)
     label_indices = np.arange(len(classes))
+    report = classification_report(all_labels, all_preds, target_names=classes, labels=label_indices, output_dict=True)
     print(classification_report(all_labels, all_preds, target_names=classes, labels=label_indices))
     
     # Plot Confusion Matrix
@@ -434,6 +471,48 @@ def evaluate_model(model, test_loader, classes, filename='confusion_matrix.png',
     plt.savefig(filename)
     print(f"Confusion matrix saved to {filename}")
 
+    # Derive additional metrics
+    preds_np = np.array(all_preds)
+    labels_np = np.array(all_labels)
+    probs_np = np.array(all_probs)
+
+    top1_acc = (preds_np == labels_np).mean()
+    top2_correct = 0
+    top2 = np.argpartition(probs_np, -2, axis=1)[:, -2:]
+    for i, lbl in enumerate(labels_np):
+        if lbl in top2[i]:
+            top2_correct += 1
+    top2_acc = top2_correct / len(labels_np)
+
+    macro_f1 = report['macro avg']['f1-score']
+    macro_precision = report['macro avg']['precision']
+    macro_recall = report['macro avg']['recall']
+
+    macro_auc = None
+    try:
+        one_hot = np.eye(len(classes))[labels_np]
+        macro_auc = roc_auc_score(one_hot, probs_np, average='macro', multi_class='ovr')
+    except Exception:
+        pass
+
+    metrics = {
+        'top1_acc': float(top1_acc),
+        'top2_acc': float(top2_acc),
+        'macro_f1': float(macro_f1),
+        'macro_precision': float(macro_precision),
+        'macro_recall': float(macro_recall),
+        'macro_auc': float(macro_auc) if macro_auc is not None else None,
+        'per_class': {cls: report[cls] for cls in classes},
+        'confusion_matrix': cm.tolist(),
+    }
+
+    if metrics_path:
+        with open(metrics_path, 'w') as f:
+            json.dump(metrics, f, indent=2)
+        print(f"Metrics saved to {metrics_path}")
+
+    return metrics
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', type=str, default='../../artifacts/dataset.npz', help='Path to dataset.npz')
@@ -441,9 +520,15 @@ def main():
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
     parser.add_argument('--lr', type=float, default=0.0003, help='Learning rate')
     parser.add_argument('--patience', type=int, default=15, help='Early stopping patience')
-    parser.add_argument('--model_type', type=str, default='improved', choices=['simple', 'improved', 'transformer'],
+    parser.add_argument('--model_type', type=str, default='improved', choices=['simple', 'improved', 'transformer', 'hybrid'],
                         help='Model architecture type')
     parser.add_argument('--dropout', type=float, default=0.5, help='Dropout rate for improved model/transformer')
+    parser.add_argument('--label_smoothing', type=float, default=0.05, help='Label smoothing for cross entropy (set 0 to disable)')
+    parser.add_argument('--scheduler', type=str, default='cosine', choices=['cosine', 'plateau'], help='LR scheduler type')
+    parser.add_argument('--warmup_epochs', type=int, default=1, help='Warmup epochs for cosine scheduler')
+    parser.add_argument('--min_lr_ratio', type=float, default=0.1, help='Minimum LR ratio for cosine scheduler')
+    parser.add_argument('--encoder_dropout', type=float, default=None, help='Hybrid: dropout inside encoder (defaults to dropout)')
+    parser.add_argument('--classifier_dropout', type=float, default=None, help='Hybrid: dropout inside classifier (defaults to dropout)')
     
     # Transformer specific args
     parser.add_argument('--d_model', type=int, default=128, help='Transformer: Dimension of model')
@@ -466,8 +551,10 @@ def main():
     
     model_path = os.path.join(model_dir, 'motor_fault_model.pth')
     metadata_path = os.path.join(model_dir, 'model_metadata.pkl')
+    metrics_path = os.path.join(model_dir, 'metrics.json')
     confusion_matrix_path = os.path.join(model_dir, 'confusion_matrix.png')
     training_history_path = os.path.join(model_dir, 'training_history.png')
+    training_history_csv = os.path.join(model_dir, 'training_history.csv')
     
     print(f"Artifacts will be saved to: {model_dir}")
 
@@ -524,6 +611,21 @@ def main():
             max_len=max_len
         ).to(device)
         print(f"Using MotorFaultTransformer with {sum(p.numel() for p in model.parameters()):,} parameters")
+    elif args.model_type == 'hybrid':
+        from transformer_model import HybridCNNTransformer
+        model = HybridCNNTransformer(
+            num_classes=len(classes),
+            input_channels=input_channels, 
+            d_model=args.d_model,
+            nhead=args.nhead,
+            num_layers=args.num_layers,
+            dim_feedforward=args.dim_feedforward,
+            dropout=args.dropout,
+            encoder_dropout=args.encoder_dropout,
+            classifier_dropout=args.classifier_dropout,
+            max_len=max_len
+        ).to(device)
+        print(f"Using HybridCNNTransformer with {sum(p.numel() for p in model.parameters()):,} parameters")
     else:
         model = MotorFaultCNN(num_classes=len(classes)).to(device)
         print(f"Using MotorFaultCNN with {sum(p.numel() for p in model.parameters()):,} parameters")
@@ -563,12 +665,16 @@ def main():
         print(f"  {cls}: {weight:.4f} (count: {class_counts[i]:,})")
     print("="*60 + "\n")
     
-    train_losses, val_accs, test_accs = train_model(
+    train_losses, val_accs, test_accs, lr_history = train_model(
         model, train_loader, val_loader, test_loader, 
         epochs=args.epochs, learning_rate=args.lr, patience=args.patience,
         model_path=model_path,
         device=device,
-        class_weights=class_weights_t
+        class_weights=class_weights_t,
+        label_smoothing=args.label_smoothing,
+        scheduler_type=args.scheduler,
+        warmup_epochs=args.warmup_epochs,
+        min_lr_ratio=args.min_lr_ratio
     )
     
     # Load best model
@@ -577,7 +683,7 @@ def main():
     print(f"\nBest model - Val Acc: {checkpoint['val_acc']:.2f}%, Test Acc: {checkpoint['test_acc']:.2f}%")
     
     print("\nEvaluating model...")
-    evaluate_model(model, test_loader, classes, filename=confusion_matrix_path, device=device)
+    metrics = evaluate_model(model, test_loader, classes, filename=confusion_matrix_path, device=device, metrics_path=metrics_path)
     
     # Save metadata
     metadata = {
@@ -585,17 +691,20 @@ def main():
         'scaler': scaler,
         'model_type': args.model_type,
         'input_shape': (X_train.shape[2], X_train.shape[1]), # (Length, Channels)
-        'hyperparameters': vars(args)
+        'hyperparameters': vars(args),
+        'metrics': metrics,
+        'metrics_path': metrics_path,
+        'training_history_csv': training_history_csv
     }
     with open(metadata_path, 'wb') as f:
         pickle.dump(metadata, f)
     print(f"Model metadata saved to {metadata_path}")
     
     # Plot training history
-    plot_training_history(train_losses, val_accs, test_accs, output_path=training_history_path)
+    plot_training_history(train_losses, val_accs, test_accs, lr_history, output_path=training_history_path, csv_path=training_history_csv)
 
-def plot_training_history(train_losses, val_accs, test_accs, output_path='training_history.png'):
-    """Plot training curves"""
+def plot_training_history(train_losses, val_accs, test_accs, lr_history, output_path='training_history.png', csv_path=None):
+    """Plot training curves and optionally dump CSV."""
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
     
     # Loss
@@ -615,9 +724,22 @@ def plot_training_history(train_losses, val_accs, test_accs, output_path='traini
     ax2.legend()
     ax2.grid(True)
     
+    ax3 = ax2.twinx()
+    ax3.plot(lr_history, color='gray', linestyle='--', label='LR')
+    ax3.set_ylabel('Learning Rate')
+    ax3.legend(loc='lower right')
+    
     plt.tight_layout()
     plt.savefig(output_path)
     print(f"Training history saved to {output_path}")
+
+    if csv_path:
+        with open(csv_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['epoch', 'train_loss', 'val_acc', 'test_acc', 'lr'])
+            for i in range(len(train_losses)):
+                writer.writerow([i + 1, train_losses[i], val_accs[i], test_accs[i], lr_history[i]])
+        print(f"Training history CSV saved to {csv_path}")
 
 if __name__ == "__main__":
     main()
