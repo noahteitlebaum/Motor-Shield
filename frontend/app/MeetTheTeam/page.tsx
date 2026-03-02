@@ -3,11 +3,13 @@
 import { Avatar } from "@heroui/avatar";
 import { Card, CardBody } from "@heroui/card";
 import FadeInUp from "../components/animations/FadeInUp";
+import { Geist } from "next/font/google";
+import { Linkedin } from 'lucide-react';
 
 type TeamMember = {
   name: string;
   role: string;
-  bio: string;
+  LinkedinURL: string;
   imgSrc: string;
 };
 
@@ -15,61 +17,61 @@ const team: TeamMember[] = [
   {
     name: "Noah Teitlebaum",
     role: "Team Lead",
-    bio: "role description",
+    LinkedinURL: "https://www.linkedin.com/in/noahteitlebaum",
     imgSrc: "/NoahTeitlebaumHeadshot.jpeg",
   },
   {
     name: "Vedanshi Parekh",
     role: "Team Lead",
-    bio: "role description",
-    imgSrc: "",
+    LinkedinURL: "https://www.linkedin.com/in/vedanshiparekh/",
+    imgSrc: "/VedanshiParekhHeadshot.jpg",
   },
   {
     name: "Pratik Gupta",
     role: "Backend/AI",
-    bio: "role description.",
+    LinkedinURL: "https://www.linkedin.com/in/pratikngupta",
     imgSrc: "/PratikGuptaHeadshot.jpeg",
   },
   {
     name: "Daniel He",
     role: "Backend/AI",
-    bio: "role description.",
+    LinkedinURL: "https://www.linkedin.com/in/daniel-he-1309b2294",
     imgSrc: "/DanielHeHeadshot.jpg",
   },
   {
     name: "Adison Seo",
     role: "Backend/AI",
-    bio: "role description.",
+    LinkedinURL: "https://www.linkedin.com/company/western-cyber-society",
     imgSrc: "/AdisonSeoHeadshot.jpg",
   },
   {
     name: "Krish Singh",
     role: "Backend/AI",
-    bio: "role description.",
-    imgSrc: "",
+    LinkedinURL: "https://www.linkedin.com/in/krish-singh-a9a343299",
+    imgSrc: "/KrishHeadshotCrop.jpg",
   },
   {
     name: "Aidan Naccarato",
     role: "Frontend",
-    bio: "role description.",
+    LinkedinURL: "https://www.linkedin.com/in/aidan-naccarato",
     imgSrc: "/AidanNaccaratoHeadshot.jpg",
   },
   {
     name: "Baichaun Ren",
     role: "Data/Eng",
-    bio: "role description.",
+    LinkedinURL: "https://www.linkedin.com/company/western-cyber-society",
     imgSrc: "/Baichuan RenHeadshot.jpeg",
   },
   {
     name: "Justin Jubinville",
     role: "Data/Eng",
-    bio: "role description.",
+    LinkedinURL: "https://www.linkedin.com/in/justinjubinville",
     imgSrc: "/JustinJubinvilleHeadshot.jpg",
   },
   {
     name: "Zayan Suri",
     role: "Data/Eng",
-    bio: "role description.",
+    LinkedinURL: "https://www.linkedin.com/in/zayan-suri",
     imgSrc: "/ZayanSuriHeadshot.jpeg",
   },
 ];
@@ -103,7 +105,17 @@ export default function MeetTheTeam() {
                 <p className="text-small text-blue-600 font-semibold uppercase">
                   {m.role}
                 </p>
-                <p className="text-small text-default-500">{m.bio}</p>
+
+               <a 
+                    href={m.LinkedinURL} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="mt-1 text-[#0A66C2] hover:text-[#2583E0] transition-colors inline-flex"
+                    aria-label={`${m.name}'s LinkedIn Profile`}
+                  >
+                    <Linkedin size={20} strokeWidth={2} />
+                  </a>
+
               </div>
             </CardBody>
           </Card>
