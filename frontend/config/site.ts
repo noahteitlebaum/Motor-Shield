@@ -12,13 +12,13 @@ export const siteConfig = {
     //   label: "Learn More",
     //   href: "/LearnMore",
     // },
+     {
+      label: "Project Overview",
+      href: "/ProjectOverview",
+    },
     {
       label: "Meet The Team",
       href: "/MeetTheTeam",
-    },
-    {
-      label: "Project Overview",
-      href: "/ProjectOverview",
     },
   ],
   navMenuItems: [
