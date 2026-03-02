@@ -68,13 +68,13 @@ export default function AlertsPanel() {
               </div>
             </div>
           ))}
-          <div className="p-3">
+          {/* <div className="p-3">
             <p className="text-small text-default-500 italic text-center">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Investiga
               tiones demonstraverunt lectores legere me lius quod ii legunt
               saepius.
             </p>
-          </div>
+          </div> */}
         </div>
       </CardBody>
     </Card>

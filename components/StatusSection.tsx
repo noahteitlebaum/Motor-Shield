@@ -18,16 +18,13 @@ export default function StatusSection() {
 
           <div className="prose prose-sm dark:prose-invert text-default-500 max-w-none">
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat.
-            </p>
-            <p>
-              Duis aute irure dolor in reprehenderit in voluptate velit esse
-              cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-              cupidatat non proident, sunt in culpa qui officia deserunt mollit
-              anim id est laborum.
+            The MotorShield system is operating within nominal parameters, 
+            utilizing real-time telemetry to maintain winding temperatures and torque 
+            consistency for optimal efficiency. Integration with the hardware backend ensures 
+            every micro-step is logged, while predictive maintenance algorithms scan for harmonic 
+            distortions to preemptively mitigate mechanical fatigue. By synchronizing with the primary 
+            controller, the system manages voltage regulation and thermal dissipation—effectively neutralizing 
+            recent excursions in Sector 4 to prevent unplanned downtime and extend the lifespan of all connected motor units.
             </p>
           </div>
 

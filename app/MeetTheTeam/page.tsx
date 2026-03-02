@@ -27,7 +27,7 @@ const team: TeamMember[] = [
     name: "Vedanshi Parekh",
     role: "Team Lead",
     LinkedinURL: "https://www.linkedin.com/in/vedanshiparekh/",
-    GithubURL: "",
+    GithubURL: "https://github.com/vedaparekh",
     imgSrc: "/VedanshiParekhHeadshot.jpg",
   },
   {
@@ -48,14 +48,14 @@ const team: TeamMember[] = [
     name: "Adison Seo",
     role: "Backend/AI",
     LinkedinURL: "https://www.linkedin.com/in/adison-seo-bb3a5a2b3",
-    GithubURL: "",
+    GithubURL: "https://github.com/MagicBacon265",
     imgSrc: "/AdisonSeoHeadshot.jpg",
   },
   {
     name: "Krish Singh",
     role: "Backend/AI",
     LinkedinURL: "https://www.linkedin.com/in/krish-singh-a9a343299",
-    GithubURL: "",
+    GithubURL: "https://github.com/krish500",
     imgSrc: "/KrishHeadshotCrop.jpg",
   },
   {
@@ -69,7 +69,7 @@ const team: TeamMember[] = [
     name: "Baichaun Ren",
     role: "Data/Eng",
     LinkedinURL: "https://www.linkedin.com/company/western-cyber-society",
-    GithubURL: "",
+    GithubURL: "https://github.com/noahteitlebaum/Motor-Shield",
     imgSrc: "/Baichuan RenHeadshot.jpeg",
   },
   {
@@ -83,7 +83,7 @@ const team: TeamMember[] = [
     name: "Zayan Suri",
     role: "Data/Eng",
     LinkedinURL: "https://www.linkedin.com/in/zayan-suri",
-    GithubURL: "",
+    GithubURL: "https://github.com/zayan534",
     imgSrc: "/ZayanSuriHeadshot.jpeg",
   },
 ];
