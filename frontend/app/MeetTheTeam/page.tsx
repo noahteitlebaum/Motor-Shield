@@ -68,8 +68,8 @@ const team: TeamMember[] = [
   {
     name: "Baichaun Ren",
     role: "Data/Eng",
-    LinkedinURL: "https://www.linkedin.com/company/western-cyber-society",
-    GithubURL: "https://github.com/noahteitlebaum/Motor-Shield",
+    LinkedinURL: "https://www.linkedin.com/in/baichuan-ren/",
+    GithubURL: "https://github.com/BaichuanRen",
     imgSrc: "/Baichuan RenHeadshot.jpeg",
   },
   {
