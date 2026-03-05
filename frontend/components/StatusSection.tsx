@@ -23,7 +23,7 @@ export default function StatusSection() {
             consistency for optimal efficiency. Integration with the hardware backend ensures 
             every micro-step is logged, while predictive maintenance algorithms scan for harmonic 
             distortions to preemptively mitigate mechanical fatigue. By synchronizing with the primary 
-            controller, the system manages voltage regulation and thermal dissipation—effectively neutralizing 
+            controller, the system manages voltage regulation and thermal dissipation, effectively neutralizing 
             recent excursions in Sector 4 to prevent unplanned downtime and extend the lifespan of all connected motor units.
             </p>
           </div>
