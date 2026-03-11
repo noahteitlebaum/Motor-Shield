@@ -1,4 +1,4 @@
-PORT = "COM5"
+PORT = "COM3"
 BAUD_RATE = 921600
 
 # Sampling settings
@@ -18,7 +18,7 @@ ADC_ZERO_OFFSET = 2048.0  # Midpoint for 12-bit ADC (0-4095)
 VDC_CONSTANT = 24.0  # Volts
 
 # Filtering settings
-LOW_PASS_CUTOFF_HZ = 1000.0  # Low-pass filter cutoff frequency
+LOW_PASS_CUTOFF_HZ = 20.0  # Low-pass filter cutoff frequency
 
 # Output files
 PROCESSED_DATA_FILE = "output/processed/processed_data.csv"
