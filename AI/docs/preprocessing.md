@@ -96,4 +96,4 @@ Scaling happens after dataset creation, during training:
 By default, the generated dataset is saved as:
 - artifacts/dataset.npz
 
-You can override the output location with the --output flag in [processing/generate_dataset.py](processing/generate_dataset.py).
+You can override the output location with the --output flag in [processing/generate_dataset.py](processing/generate_dataset.py)
