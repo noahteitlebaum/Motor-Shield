@@ -219,6 +219,7 @@ python src/analysis/ensemble_model.py \
 | `--dropout`    | `0.5`                   | Dropout rate                                        |
 | `--patience`   | `15`                    | Early stopping patience                             |
 | `--device`     | Auto-detect             | Compute device: `cpu`, `cuda`, `mps`                |
+| `--train_noise_std` | `0` (off)          | Gaussian noise on **train batches only** (e.g. `0.02`) for hardware-like robustness; val/test stay clean |
 
 ### Device Selection
 
