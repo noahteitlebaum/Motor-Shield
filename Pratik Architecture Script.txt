@@ -1,27 +1,14 @@
 
-CNN Analysis:
-  CNNs excel at detecting local temporal patterns like commutation spikes and short-duration anomalies.
-  They are computationally efficient and robust to noise.
-  Their limitation is that they struggle with long-range dependencies across the entire signal window.
+MotorShield AI Architecture:
 
-Transformer Analysis:
-  Transformers use self-attention mechanisms that capture global context and relationships across the entire time series.
-  They are excellent at understanding complex temporal patterns and dependencies.
-  Their limitation is that they require more data and computational resources compared to CNNs.
+The CNN Layer detects local patterns like commutation spikes in motor currents and operates with high speed and efficiency, but struggles with long-range dependencies across the entire signal.
 
-Hybrid Architecture Solution:
-  CNNs extract local features first, identifying critical spikes and local patterns in three-phase motor currents.
-  Transformers then analyze relationships between features across time, capturing broader context and long-range dependencies.
-  This approach combines the efficiency and local pattern recognition of CNNs with the global context understanding of Transformers.
+The Transformer Layer captures global relationships across time and understands complex temporal dependencies, but requires more computational resources compared to CNNs.
 
-Processing Pipeline:
-  Three-phase motor current signals are processed through a sophisticated preprocessing chain.
-  The signals undergo calibration, filtering, and windowing before feeding into the hybrid model.
+We chose the Hybrid Solution because CNN alone cannot capture global context, while Transformer alone is computationally expensive for real-time applications. The hybrid approach uses CNN to extract local features, which then feed into the Transformer to analyze global context, combining efficiency with comprehensive understanding.
 
-Results:
-  The system detects four critical fault conditions: healthy operation, open circuits, inter-turn shorts, and control switch failures.
-  It achieves 95% plus accuracy.
+The Processing pipeline transforms three-phase currents through calibration and filtering before feeding into the hybrid model for fault detection.
 
-Impact:
-  MotorShield AI represents the future of predictive maintenance.
-  It prevents costly equipment failures through intelligent, real-time motor health monitoring.
+The Results show detection of four fault conditions - healthy operation, open circuits, inter-turn shorts, and switch failures - with 95% plus accuracy.
+
+The Impact is preventing costly failures through real-time predictive maintenance.
