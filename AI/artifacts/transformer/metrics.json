@@ -4,7 +4,7 @@
   "macro_f1": 0.9579508322054152,
   "macro_precision": 0.9487577639751552,
   "macro_recall": 0.9743788819875776,
-  "macro_auc": 1.0,
+  "macro_auc": 0.9995531166194068,
   "per_class": {
     "Faulty_Control_Switch": {
       "precision": 1.0,

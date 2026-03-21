@@ -3,6 +3,7 @@ import sys
 import json
 import csv
 import math
+import random
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
@@ -50,11 +51,48 @@ device = get_device()
 def load_data(filepath):
     """Load pre-split dataset from npz"""
     data = np.load(filepath)
-    return {
+    data_dict = {
         'X_train': data['X_train'], 'y_train': data['y_train'],
         'X_val': data['X_val'], 'y_val': data['y_val'],
         'X_test': data['X_test'], 'y_test': data['y_test']
     }
+
+    # Optional provenance metadata for stronger leakage checks.
+    for split in ['train', 'val', 'test']:
+        key = f'source_{split}'
+        if key in data:
+            data_dict[key] = data[key].astype(str)
+
+    return data_dict
+
+
+def validate_source_overlap(data_dict):
+    """Fail fast if the same source file exists in multiple splits."""
+    source_keys = [f'source_{split}' for split in ['train', 'val', 'test']]
+    if not all(key in data_dict for key in source_keys):
+        print("  WARNING: Source provenance metadata missing in dataset; skipping file-level leakage check")
+        print("           Regenerate dataset with updated generate_dataset.py for stronger leakage validation.")
+        return
+
+    train_sources = set(data_dict['source_train'].tolist())
+    val_sources = set(data_dict['source_val'].tolist())
+    test_sources = set(data_dict['source_test'].tolist())
+
+    overlaps = {
+        'train-val': train_sources & val_sources,
+        'train-test': train_sources & test_sources,
+        'val-test': val_sources & test_sources,
+    }
+    overlap_count = sum(len(v) for v in overlaps.values())
+
+    if overlap_count > 0:
+        details = '; '.join([f"{k}: {len(v)}" for k, v in overlaps.items() if v])
+        raise ValueError(
+            "Source-level data leakage detected (same CSV in multiple splits). "
+            f"Overlaps -> {details}"
+        )
+
+    print("  PASS: No source-file overlap across train/val/test")
 
 def preprocess_data_v2(data_dict):
     """Preprocess already split data with validation checks"""
@@ -105,6 +143,8 @@ def preprocess_data_v2(data_dict):
     
     # Quick leakage check (sample-based)
     print("\nQuick Leakage Check:")
+    validate_source_overlap(data_dict)
+
     X_train_flat_check = X_train.reshape(len(X_train), -1)
     X_test_flat_check = X_test.reshape(len(X_test), -1)
     n_check = min(50, len(X_test_flat_check))
@@ -313,6 +353,40 @@ def add_training_noise(x, std=0.02):
     return x + torch.randn_like(x) * std
 
 
+def set_global_seed(seed):
+    """Set deterministic seeds for reproducible training behavior."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
+def _has_batchnorm(module):
+    return any(isinstance(m, nn.modules.batchnorm._BatchNorm) for m in module.modules())
+
+
+def recalibrate_batchnorm_stats(model, data_loader, device, max_batches=80):
+    """
+    Refresh BatchNorm running stats using CLEAN inputs.
+
+    Noise injection can skew BN statistics away from evaluation distribution.
+    A short clean pass each epoch keeps eval-time behavior stable.
+    """
+    if not _has_batchnorm(model):
+        return
+
+    was_training = model.training
+    model.train()
+    with torch.no_grad():
+        for batch_idx, (inputs, _) in enumerate(data_loader):
+            if batch_idx >= max_batches:
+                break
+            inputs = inputs.to(device)
+            _ = model(inputs)
+    model.train(was_training)
+
+
 def _build_cosine_warmup_scheduler(optimizer, epochs, warmup_epochs=1, min_lr_ratio=0.1):
     """Create a cosine annealing scheduler with linear warmup."""
     warmup_epochs = max(0, warmup_epochs)
@@ -330,7 +404,8 @@ def _build_cosine_warmup_scheduler(optimizer, epochs, warmup_epochs=1, min_lr_ra
 def train_model(model, train_loader, val_loader, test_loader, epochs=100, learning_rate=0.001, 
                 patience=15, model_path='motor_fault_model.pth', device=None, class_weights=None,
                 label_smoothing=0.0, scheduler_type='cosine', warmup_epochs=1, min_lr_ratio=0.1,
-                train_noise_std=0.0):
+                train_noise_std=0.0, bn_recalibration_batches=80,
+                collapse_drop_pct=30.0, collapse_patience=2):
     if device is None:
         device = get_device()
 
@@ -367,6 +442,7 @@ def train_model(model, train_loader, val_loader, test_loader, epochs=100, learni
     
     best_val_acc = 0.0
     patience_counter = 0
+    collapse_counter = 0
     
     for epoch in range(epochs):
         lr_history.append(optimizer.param_groups[0]['lr'])
@@ -403,6 +479,14 @@ def train_model(model, train_loader, val_loader, test_loader, epochs=100, learni
         epoch_loss = running_loss / len(train_loader.dataset)
         train_acc = 100 * train_correct / train_total
         train_losses.append(epoch_loss)
+
+        if train_noise_std and train_noise_std > 0 and bn_recalibration_batches > 0:
+            recalibrate_batchnorm_stats(
+                model,
+                train_loader,
+                device,
+                max_batches=bn_recalibration_batches,
+            )
         
         # Validation phase
         model.eval()
@@ -446,6 +530,7 @@ def train_model(model, train_loader, val_loader, test_loader, epochs=100, learni
         if val_acc > best_val_acc:
             best_val_acc = val_acc
             patience_counter = 0
+            collapse_counter = 0
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
@@ -456,6 +541,20 @@ def train_model(model, train_loader, val_loader, test_loader, epochs=100, learni
             print(f"Saved best model with val_acc: {val_acc:.2f}%")
         else:
             patience_counter += 1
+
+            # Guard against catastrophic validation collapse in later epochs.
+            if best_val_acc > 0 and (best_val_acc - val_acc) >= collapse_drop_pct:
+                collapse_counter += 1
+                print(
+                    f"Validation collapse detected: best={best_val_acc:.2f}% vs current={val_acc:.2f}% "
+                    f"(drop {best_val_acc - val_acc:.2f}%). [{collapse_counter}/{collapse_patience}]"
+                )
+                if collapse_counter >= collapse_patience:
+                    print("\nStopping early due to repeated catastrophic validation collapse.")
+                    break
+            else:
+                collapse_counter = 0
+
             if patience_counter >= patience:
                 print(f"\nEarly stopping triggered after {epoch+1} epochs")
                 break
@@ -545,6 +644,10 @@ def main():
     parser.add_argument('--epochs', type=int, default=20, help='Number of epochs')
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
     parser.add_argument('--lr', type=float, default=0.0003, help='Learning rate')
+    parser.add_argument('--lr_reference_batch', type=int, default=256,
+                        help='Reference batch size used for LR scaling (effective_lr = lr * batch_size / reference)')
+    parser.add_argument('--disable_lr_batch_scaling', action='store_true',
+                        help='Disable automatic learning-rate scaling by batch size')
     parser.add_argument('--patience', type=int, default=15, help='Early stopping patience')
     parser.add_argument('--model_type', type=str, default='improved', choices=['simple', 'improved', 'transformer', 'hybrid'],
                         help='Model architecture type')
@@ -564,6 +667,17 @@ def main():
     
     parser.add_argument('--output_dir', type=str, default='artifacts', help='Output directory for models and plots')
     parser.add_argument('--device', type=str, default=None, help='Device to use (cpu, cuda, mps)')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility')
+    parser.add_argument(
+        '--bn_recalibration_batches',
+        type=int,
+        default=80,
+        help='Number of clean train batches used per epoch to refresh BatchNorm stats when train noise is enabled (0 disables).',
+    )
+    parser.add_argument('--collapse_drop_pct', type=float, default=30.0,
+                        help='Early-stop guard: treat this much val-accuracy drop from best as catastrophic')
+    parser.add_argument('--collapse_patience', type=int, default=2,
+                        help='Number of consecutive catastrophic drops before stopping')
     parser.add_argument(
         '--train_noise_std',
         type=float,
@@ -573,9 +687,20 @@ def main():
     )
     args = parser.parse_args()
 
+    set_global_seed(args.seed)
+    print(f"Using random seed: {args.seed}")
+
     # Determine device
     device = get_device(args.device)
     print(f"Using device: {device}")
+
+    effective_lr = args.lr
+    if not args.disable_lr_batch_scaling and args.lr_reference_batch > 0:
+        effective_lr = args.lr * (args.batch_size / args.lr_reference_batch)
+        print(
+            f"Using batch-size scaled LR: {effective_lr:.8f} "
+            f"(base {args.lr} @ batch {args.lr_reference_batch}, current batch {args.batch_size})"
+        )
 
     # Create model-specific subdirectory
     output_dir = args.output_dir
@@ -700,7 +825,7 @@ def main():
     
     train_losses, val_accs, test_accs, lr_history = train_model(
         model, train_loader, val_loader, test_loader, 
-        epochs=args.epochs, learning_rate=args.lr, patience=args.patience,
+        epochs=args.epochs, learning_rate=effective_lr, patience=args.patience,
         model_path=model_path,
         device=device,
         class_weights=class_weights_t,
@@ -709,6 +834,9 @@ def main():
         warmup_epochs=args.warmup_epochs,
         min_lr_ratio=args.min_lr_ratio,
         train_noise_std=args.train_noise_std,
+        bn_recalibration_batches=args.bn_recalibration_batches,
+        collapse_drop_pct=args.collapse_drop_pct,
+        collapse_patience=args.collapse_patience,
     )
     
     # Load best model
@@ -726,6 +854,7 @@ def main():
         'model_type': args.model_type,
         'input_shape': (X_train.shape[2], X_train.shape[1]), # (Length, Channels)
         'hyperparameters': vars(args),
+        'effective_learning_rate': effective_lr,
         'metrics': metrics,
         'metrics_path': metrics_path,
         'training_history_csv': training_history_csv

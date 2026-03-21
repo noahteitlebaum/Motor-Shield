@@ -1,6 +1,8 @@
 #!/bin/bash
 # Quick setup script to regenerate dataset with leak-free configuration
 
+set -euo pipefail
+
 echo "Motor Shield - Leak-Free Dataset Generation"
 echo "=============================================="
 echo ""
@@ -10,6 +12,17 @@ if [ ! -d "src/core" ]; then
     echo "ERROR: Must run from AI/ directory"
     exit 1
 fi
+
+VENV_PATH="../.venv/bin/activate"
+if [ ! -f "$VENV_PATH" ]; then
+    echo "ERROR: Virtual environment not found at ../.venv"
+    exit 1
+fi
+
+# Activate project venv as requested
+source "$VENV_PATH"
+PYTHON_BIN="$(which python)"
+echo "Using Python: $PYTHON_BIN"
 
 # Backup old dataset if it exists
 if [ -f "artifacts/dataset.npz" ]; then
@@ -23,20 +36,16 @@ echo "   - Val: 2 augmentations (light noise only)"
 echo "   - Test: 0 augmentations (original data)"
 echo ""
 
-python src/core/generate_dataset.py \
+if "$PYTHON_BIN" src/core/generate_dataset.py \
     --train_augmentations 10 \
     --val_augmentations 2 \
     --test_augmentations 0 \
-    --output artifacts/dataset.npz
-
-if [ $? -eq 0 ]; then
+    --output artifacts/dataset.npz; then
     echo ""
     echo "PASS: Dataset generated successfully!"
     echo ""
     echo "Running validation checks..."
-    python src/validation/validate_no_leakage.py
-    
-    if [ $? -eq 0 ]; then
+    if "$PYTHON_BIN" src/validation/validate_no_leakage.py; then
         echo ""
         echo "SUCCESS: Dataset is ready for training."
         echo ""

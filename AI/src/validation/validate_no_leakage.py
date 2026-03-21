@@ -9,6 +9,42 @@ import os
 import sys
 from collections import defaultdict
 
+
+def check_source_overlap(data):
+    """Check whether the same source CSV appears in multiple splits."""
+    print("\n" + "="*60)
+    print("SOURCE FILE OVERLAP CHECK")
+    print("="*60)
+
+    required = ['source_train', 'source_val', 'source_test']
+    if not all(k in data for k in required):
+        print("  WARNING: Source metadata missing from dataset; cannot run file-level overlap check")
+        return [
+            "WARNING: Missing source_* metadata. Regenerate dataset with updated generate_dataset.py for stronger leakage validation"
+        ]
+
+    train_sources = set(data['source_train'].astype(str).tolist())
+    val_sources = set(data['source_val'].astype(str).tolist())
+    test_sources = set(data['source_test'].astype(str).tolist())
+
+    issues = []
+    for a_name, a_set, b_name, b_set in [
+        ('train', train_sources, 'val', val_sources),
+        ('train', train_sources, 'test', test_sources),
+        ('val', val_sources, 'test', test_sources),
+    ]:
+        overlap = a_set & b_set
+        if overlap:
+            issues.append(f"FAIL: Source overlap between {a_name} and {b_name}: {len(overlap)} file(s)")
+        else:
+            print(f"  PASS: No source overlap between {a_name} and {b_name}")
+
+    print("\n  Source counts:")
+    print(f"    Train: {len(train_sources)} unique files")
+    print(f"    Val:   {len(val_sources)} unique files")
+    print(f"    Test:  {len(test_sources)} unique files")
+    return issues
+
 def check_exact_duplicates(X_train, X_val, X_test):
     """Check for exact duplicate samples across splits"""
     print("\n" + "="*60)
@@ -302,6 +338,7 @@ def main():
     
     # Run all checks
     all_issues = []
+    all_issues.extend(check_source_overlap(data))
     
     all_issues.extend(check_data_quality(X_train, X_val, X_test, y_train, y_val, y_test))
     all_issues.extend(check_class_overlap(y_train, y_val, y_test))

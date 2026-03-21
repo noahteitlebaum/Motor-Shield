@@ -286,7 +286,8 @@ def get_files():
                 'path': fname,
                 'label_prefix': 'Healthy',
                 'is_healthy': True,
-                'fault_time': None
+                'fault_time': None,
+                'source_id': os.path.relpath(fname, files_dir).replace(os.sep, '/')
             })
 
     # 2. Faulty
@@ -309,7 +310,8 @@ def get_files():
                         'path': fname,
                         'label_prefix': label,
                         'is_healthy': False,
-                        'fault_time': ft
+                        'fault_time': ft,
+                        'source_id': os.path.relpath(fname, files_dir).replace(os.sep, '/')
                     })
 
     return grouped_files
@@ -324,7 +326,12 @@ def main():
     parser.add_argument('--harmonic_prob', type=float, default=0.3)
     parser.add_argument('--warp_prob', type=float, default=0.2)
     parser.add_argument('--allow_single_file_split', action='store_true', help='Allow time-based splitting for single-file groups (may cause leakage)')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed for deterministic file splits and augmentation sampling')
     args = parser.parse_args()
+
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    print(f"Using random seed: {args.seed}")
 
     output_dir = os.path.dirname(args.output)
     if output_dir:
@@ -334,10 +341,16 @@ def main():
     processor = DataProcessor(augmentor)
     
     all_splits = {
-        'train': {'windows': [], 'labels': []},
-        'val': {'windows': [], 'labels': []},
-        'test': {'windows': [], 'labels': []}
+        'train': {'windows': [], 'labels': [], 'sources': []},
+        'val': {'windows': [], 'labels': [], 'sources': []},
+        'test': {'windows': [], 'labels': [], 'sources': []}
     }
+
+    def append_split_data(split_name, windows, labels, source_id):
+        if windows:
+            all_splits[split_name]['windows'].append(windows)
+            all_splits[split_name]['labels'].append(labels)
+            all_splits[split_name]['sources'].append([source_id] * len(windows))
     
     grouped_files = get_files()
     total_files = sum(len(v) for v in grouped_files.values())
@@ -400,8 +413,7 @@ def main():
                 for i in range(args.train_augmentations + 1):
                     if i == 0:
                         # Original data
-                        all_splits['train']['windows'].append(train_windows)
-                        all_splits['train']['labels'].append(train_labels)
+                        append_split_data('train', train_windows, train_labels, f['source_id'])
                     else:
                         # Augment
                         df_aug = augmentor.apply_gain_variation(df_base)
@@ -417,14 +429,12 @@ def main():
                         if w_aug:
                             w_aug_train = w_aug[:max(0, train_end - gap_size)]
                             l_aug_train = l_aug[:max(0, train_end - gap_size)]
-                            all_splits['train']['windows'].append(w_aug_train)
-                            all_splits['train']['labels'].append(l_aug_train)
+                            append_split_data('train', w_aug_train, l_aug_train, f['source_id'])
                 
                 # Val: minimal augmentation
                 for i in range(args.val_augmentations + 1):
                     if i == 0:
-                        all_splits['val']['windows'].append(val_windows)
-                        all_splits['val']['labels'].append(val_labels)
+                        append_split_data('val', val_windows, val_labels, f['source_id'])
                     else:
                         df_aug = augmentor.add_gaussian_noise(df_base)  # Light augmentation only
                         df_aug_proc = processor.derive_phase_voltages(df_aug)
@@ -432,14 +442,12 @@ def main():
                         if w_aug:
                             w_aug_val = w_aug[train_end + gap_size:max(train_end + gap_size, val_end - gap_size)]
                             l_aug_val = l_aug[train_end + gap_size:max(train_end + gap_size, val_end - gap_size)]
-                            all_splits['val']['windows'].append(w_aug_val)
-                            all_splits['val']['labels'].append(l_aug_val)
+                            append_split_data('val', w_aug_val, l_aug_val, f['source_id'])
                 
                 # Test: NO augmentation by default (only original)
                 for i in range(args.test_augmentations + 1):
                     if i == 0:
-                        all_splits['test']['windows'].append(test_windows)
-                        all_splits['test']['labels'].append(test_labels)
+                        append_split_data('test', test_windows, test_labels, f['source_id'])
                 
                 continue
 
@@ -480,9 +488,7 @@ def main():
                     fault_time=f['fault_time']
                 )
                 
-                if w:
-                    all_splits[split_name]['windows'].append(w)
-                    all_splits[split_name]['labels'].append(l)
+                append_split_data(split_name, w, l, f['source_id'])
                 
                 # Apply augmentations based on split type
                 for i in range(n_augmentations):
@@ -520,9 +526,7 @@ def main():
                         fault_time=f['fault_time']
                     )
                     
-                    if w:
-                        all_splits[split_name]['windows'].append(w)
-                        all_splits[split_name]['labels'].append(l)
+                    append_split_data(split_name, w, l, f['source_id'])
 
     # Aggregate and Save
     if any(len(all_splits[s]['windows']) > 0 for s in ['train', 'val', 'test']):
@@ -534,17 +538,22 @@ def main():
                 # Flatten
                 flat_windows = [w for sublist in all_splits[split]['windows'] for w in sublist]
                 flat_labels = [l for sublist in all_splits[split]['labels'] for l in sublist]
+                flat_sources = [s for sublist in all_splits[split]['sources'] for s in sublist]
                 
                 X = np.array(flat_windows)
                 y = np.array(flat_labels)
+                source_arr = np.array(flat_sources, dtype=str)
                 
                 final_data[f'X_{split}'] = X
                 final_data[f'y_{split}'] = y
+                final_data[f'source_{split}'] = source_arr
                 
                 print(f"  {split.capitalize()}: {X.shape[0]} samples")
+                print(f"    Unique source files: {len(np.unique(source_arr))}")
             else:
                 final_data[f'X_{split}'] = np.array([])
                 final_data[f'y_{split}'] = np.array([])
+                final_data[f'source_{split}'] = np.array([], dtype=str)
                 print(f"  {split.capitalize()}: 0 samples")
         
         np.savez_compressed(args.output, **final_data)
@@ -566,7 +575,27 @@ def main():
         print("\n" + "="*60)
         print("DATA LEAKAGE CHECK")
         print("="*60)
-        print("Checking for duplicate samples across splits...")
+        print("Checking for source-file overlap and duplicate samples across splits...")
+
+        train_sources = set(final_data.get('source_train', np.array([], dtype=str)).tolist())
+        val_sources = set(final_data.get('source_val', np.array([], dtype=str)).tolist())
+        test_sources = set(final_data.get('source_test', np.array([], dtype=str)).tolist())
+
+        source_overlap_found = False
+        for a_name, a_set, b_name, b_set in [
+            ('train', train_sources, 'val', val_sources),
+            ('train', train_sources, 'test', test_sources),
+            ('val', val_sources, 'test', test_sources),
+        ]:
+            overlap = a_set & b_set
+            if overlap:
+                source_overlap_found = True
+                print(f"WARNING: Source overlap between {a_name} and {b_name}: {len(overlap)} files")
+            else:
+                print(f"PASS: No source overlap between {a_name} and {b_name}")
+
+        if source_overlap_found:
+            print("WARNING: Source overlap can cause leakage (same CSV in multiple splits)")
         
         # Quick check: compare a sample of test data against all train data
         if len(final_data.get('X_train', [])) > 0 and len(final_data.get('X_test', [])) > 0:
