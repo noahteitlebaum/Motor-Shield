@@ -8,7 +8,6 @@ import FadeInUp from "../components/animations/FadeInUp";
 export default function ProjectOverview() {
   return (
     <>
-      <style>{`.gradient-background { display: none !important; }`}</style>
       <div className="w-full flex flex-col items-center gap-10 py-12 px-4">
         {/* Header */}
         <div className="max-w-4xl w-full flex flex-col gap-4">

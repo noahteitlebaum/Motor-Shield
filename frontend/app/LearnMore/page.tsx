@@ -6,11 +6,41 @@ import { Chip } from "@heroui/chip";
 import { Accordion, AccordionItem } from "@heroui/accordion";
 
 import FadeInUp from "../components/animations/FadeInUp";
+import MermaidChart from "@/components/MermaidChart";
+
+const architectureChart = `
+flowchart TD
+    classDef input fill:#2196F3,stroke:#1565C0,color:#fff
+    classDef cnn fill:#4CAF50,stroke:#2E7D32,color:#fff
+    classDef trans fill:#FF9800,stroke:#EF6C00,color:#fff
+    classDef clf fill:#E91E63,stroke:#C2185B,color:#fff
+    classDef pool fill:#9C27B0,stroke:#6A1B9A,color:#fff
+
+    Input(["Input  —  Batch × 6 Channels × 200 Samples"]):::input
+
+    subgraph Stem ["Phase 1: CNN Stem  —  Local Feature Extraction"]
+        direction LR
+        C1["Conv1D k7 s2<br/>6 → 48 ch"]:::cnn --> C2["Conv1D k5 s2<br/>48 → 128 ch"]:::cnn
+    end
+
+    subgraph TF ["Phase 2: Transformer Encoder  —  Global Context (x3 Layers)"]
+        direction LR
+        PE["Positional Encoding"]:::trans --> MHA["Self-Attention<br/>(4 heads, 128 dim)"]:::trans --> FFN["Feedforward Network<br/>128 → 256 → 128"]:::trans
+    end
+
+    subgraph Head ["Phase 3: Classifier Head"]
+        direction LR
+        P["AvgPool + MaxPool<br/>256-dim"]:::pool --> L1["Linear 256 → 128<br/>GELU + Dropout"]:::clf --> L2["Linear 128 → 4<br/>Logits"]:::clf
+    end
+
+    Out(["Output  —  Fault Diagnosis: Healthy / Open Circuit / Inter-Turn / Control Switch"]):::input
+
+    Input --> Stem --> TF --> Head --> Out
+`;
 
 export default function LearnMore() {
   return (
     <>
-      <style>{`.gradient-background { display: none !important; }`}</style>
       <div className="w-full flex flex-col items-center gap-12 py-12 px-4 pb-24">
         {/* Header */}
         <div className="max-w-4xl w-full flex flex-col gap-4 text-center items-center">
@@ -223,6 +253,7 @@ export default function LearnMore() {
                       </span>
                     </div>
                   </div>
+                  <MermaidChart chart={architectureChart} />
                 </CardBody>
               </Card>
             </FadeInUp>
@@ -285,7 +316,6 @@ export default function LearnMore() {
               hits the Hybrid model.
             </p>
           </FadeInUp>
-
           <FadeInUp>
             <Accordion variant="splitted">
               <AccordionItem
