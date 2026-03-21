@@ -1,27 +1,27 @@
 
 CNN Analysis:
-  - Excel at detecting local temporal patterns like commutation spikes and short-duration anomalies
-  - Computationally efficient and robust to noise
-  - Limitation: Struggle with long-range dependencies across entire signal window
+  CNNs excel at detecting local temporal patterns like commutation spikes and short-duration anomalies.
+  They are computationally efficient and robust to noise.
+  Their limitation is that they struggle with long-range dependencies across the entire signal window.
 
 Transformer Analysis:
-  - Self-attention mechanisms capture global context and relationships across entire time series
-  - Excellent at understanding complex temporal patterns and dependencies
-  - Limitation: Require more data and computational resources compared to CNNs
+  Transformers use self-attention mechanisms that capture global context and relationships across the entire time series.
+  They are excellent at understanding complex temporal patterns and dependencies.
+  Their limitation is that they require more data and computational resources compared to CNNs.
 
 Hybrid Architecture Solution:
-  - CNNs extract local features first, identifying critical spikes and local patterns in three-phase motor currents
-  - Transformers analyze relationships between features across time, capturing broader context and long-range dependencies
-  - Combines efficiency and local pattern recognition of CNNs with global context understanding of Transformers
+  CNNs extract local features first, identifying critical spikes and local patterns in three-phase motor currents.
+  Transformers then analyze relationships between features across time, capturing broader context and long-range dependencies.
+  This approach combines the efficiency and local pattern recognition of CNNs with the global context understanding of Transformers.
 
 Processing Pipeline:
-  - Three-phase motor current signals processed through sophisticated preprocessing chain
-  - Calibration, filtering, and windowing before feeding into hybrid model
+  Three-phase motor current signals are processed through a sophisticated preprocessing chain.
+  The signals undergo calibration, filtering, and windowing before feeding into the hybrid model.
 
 Results:
-  - Detect four critical fault conditions: healthy operation, open circuits, inter-turn shorts, control switch failures
-  - Achieve 95% plus accuracy
+  The system detects four critical fault conditions: healthy operation, open circuits, inter-turn shorts, and control switch failures.
+  It achieves 95% plus accuracy.
 
 Impact:
-  - MotorShield AI represents the future of predictive maintenance
-  - Prevents costly equipment failures through intelligent, real-time motor health monitoring
+  MotorShield AI represents the future of predictive maintenance.
+  It prevents costly equipment failures through intelligent, real-time motor health monitoring.
