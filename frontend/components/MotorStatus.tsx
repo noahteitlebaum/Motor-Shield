@@ -17,7 +17,7 @@ export default function MotorStatus({
     if (diagnosis === "Healthy") baseVal = 97;
     else if (diagnosis === "Faulty_Control_Switch") baseVal = 68;
     else if (diagnosis === "Faulty_Inter_Turn") baseVal = 42;
-    else if (diagnosis === "Faulty_Open_Circuit") baseVal = 18;
+    else if (diagnosis === "Faulty_Open_Circuit") baseVal = 0;
 
     // Slightly fluctuate health during simulation
     const interval = setInterval(() => {
