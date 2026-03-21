@@ -47,7 +47,9 @@ Windows are extracted as sliding segments of shape (200, 6) with features:
 
 ## 4) Noise and augmentation
 
-All augmentations are applied per file during dataset generation. Base augmentations are always applied; advanced ones are probabilistic.
+### Dataset generation (fixed augmentations)
+
+All augmentations below are applied per file during dataset generation. Base augmentations are always applied; advanced ones are probabilistic.
 
 ### Base augmentations (always applied)
 1) Gaussian noise
@@ -74,6 +76,14 @@ All augmentations are applied per file during dataset generation. Base augmentat
 
 These are implemented in `DataAugmentor` methods in [processing/generate_dataset.py](processing/generate_dataset.py).
 
+### Optional: train-time Gaussian noise (PyTorch loop)
+
+For **fresh** noise every batch (recommended for real-hardware generalization), use:
+
+`python train_model.py --train_noise_std 0.02 ...`
+
+This adds `torch.randn_like(x) * std` only in the training loop; validation and test see **no** extra noise. Keeps the saved `dataset.npz` unchanged. Start at `0.02`; reduce to `0.01` if open-circuit accuracy drops (near-zero current is a delicate feature).
+
 ## 5) Scaling and train/val/test split
 
 Scaling happens after dataset creation, during training:
@@ -86,4 +96,4 @@ Scaling happens after dataset creation, during training:
 By default, the generated dataset is saved as:
 - artifacts/dataset.npz
 
-You can override the output location with the --output flag in [processing/generate_dataset.py](processing/generate_dataset.py).
+You can override the output location with the --output flag in [processing/generate_dataset.py](processing/generate_dataset.py)

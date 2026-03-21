@@ -293,6 +293,18 @@ class MotorFaultCNN(nn.Module):
         x = self.classifier(x)
         return x
 
+def add_training_noise(x, std=0.02):
+    """
+    Add Gaussian noise to a batch of inputs (train only).
+
+    Per MotorShield software doc: inject noise in the PyTorch loop so each batch sees
+    fresh random noise. Val/test must stay clean.
+    """
+    if std <= 0:
+        return x
+    return x + torch.randn_like(x) * std
+
+
 def _build_cosine_warmup_scheduler(optimizer, epochs, warmup_epochs=1, min_lr_ratio=0.1):
     """Create a cosine annealing scheduler with linear warmup."""
     warmup_epochs = max(0, warmup_epochs)
@@ -309,9 +321,13 @@ def _build_cosine_warmup_scheduler(optimizer, epochs, warmup_epochs=1, min_lr_ra
 
 def train_model(model, train_loader, val_loader, test_loader, epochs=100, learning_rate=0.001, 
                 patience=15, model_path='motor_fault_model.pth', device=None, class_weights=None,
-                label_smoothing=0.0, scheduler_type='cosine', warmup_epochs=1, min_lr_ratio=0.1):
+                label_smoothing=0.0, scheduler_type='cosine', warmup_epochs=1, min_lr_ratio=0.1,
+                train_noise_std=0.0):
     if device is None:
         device = get_device()
+
+    if train_noise_std and train_noise_std > 0:
+        print(f"Train-time Gaussian noise enabled: std={train_noise_std} (val/test unchanged)")
 
     loss_kwargs = {}
     if class_weights is not None:
@@ -354,7 +370,9 @@ def train_model(model, train_loader, val_loader, test_loader, epochs=100, learni
         
         for i, (inputs, labels) in enumerate(train_loader):
             inputs, labels = inputs.to(device), labels.to(device)
-            
+            if train_noise_std and train_noise_std > 0:
+                inputs = add_training_noise(inputs, train_noise_std)
+
             optimizer.zero_grad()
             outputs = model(inputs)
             loss = criterion(outputs, labels)
@@ -538,6 +556,12 @@ def main():
     
     parser.add_argument('--output_dir', type=str, default='artifacts', help='Output directory for models and plots')
     parser.add_argument('--device', type=str, default=None, help='Device to use (cpu, cuda, mps)')
+    parser.add_argument(
+        '--train_noise_std',
+        type=float,
+        default=0.0,
+        help='Gaussian noise std on train batches only (0=off). Typical start: 0.02.',
+    )
     args = parser.parse_args()
 
     # Determine device
@@ -674,7 +698,8 @@ def main():
         label_smoothing=args.label_smoothing,
         scheduler_type=args.scheduler,
         warmup_epochs=args.warmup_epochs,
-        min_lr_ratio=args.min_lr_ratio
+        min_lr_ratio=args.min_lr_ratio,
+        train_noise_std=args.train_noise_std,
     )
     
     # Load best model
