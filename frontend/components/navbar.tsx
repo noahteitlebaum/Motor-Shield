@@ -61,10 +61,9 @@ export const Navbar = () => {
                 <span>{item.label}</span>
 
                 {/* Left half of the line */}
-        <span className="absolute -bottom-0.5 left-1/2 w-0 transition-all h-0.5 bg-gray-400 group-hover:w-1/2"></span>
-        {/* Right half of the line */}
-        <span className="absolute -bottom-0.5 right-1/2 w-0 transition-all h-0.5 bg-gray-400 group-hover:w-1/2"></span>
-
+                <span className="absolute -bottom-0.5 left-1/2 w-0 transition-all h-0.5 bg-gray-400 group-hover:w-1/2" />
+                {/* Right half of the line */}
+                <span className="absolute -bottom-0.5 right-1/2 w-0 transition-all h-0.5 bg-gray-400 group-hover:w-1/2" />
               </NextLink>
             </NavbarItem>
           ))}

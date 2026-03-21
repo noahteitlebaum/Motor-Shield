@@ -1,9 +1,8 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
-import { Link } from "@heroui/link";
 import clsx from "clsx";
-import { AnimatedBackground } from "./components/AnimatedBackground";
 
+import { AnimatedBackground } from "./components/AnimatedBackground";
 import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";

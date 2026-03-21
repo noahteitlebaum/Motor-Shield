@@ -5,7 +5,11 @@ import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Divider } from "@heroui/divider";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function AlertsPanel({ latestLog }: { latestLog?: { type: string, message: string } | null }) {
+export default function AlertsPanel({
+  latestLog,
+}: {
+  latestLog?: { type: string; message: string } | null;
+}) {
   const [alerts, setAlerts] = useState([
     {
       id: 1,
@@ -23,7 +27,9 @@ export default function AlertsPanel({ latestLog }: { latestLog?: { type: string,
 
   useEffect(() => {
     if (!latestLog) return;
-    setAlerts(prev => [{ id: Date.now(), ...latestLog, time: "Just now" }, ...prev].slice(0, 5));
+    setAlerts((prev) =>
+      [{ id: Date.now(), ...latestLog, time: "Just now" }, ...prev].slice(0, 5),
+    );
   }, [latestLog]);
 
   return (
@@ -33,8 +39,8 @@ export default function AlertsPanel({ latestLog }: { latestLog?: { type: string,
           <p className="text-md font-bold text-center text-xl uppercase tracking-wider flex items-center gap-2">
             Event Log
             <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-danger"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-danger" />
             </span>
           </p>
           <div className="h-1 w-12 bg-warning rounded-full mt-1" />
@@ -45,17 +51,19 @@ export default function AlertsPanel({ latestLog }: { latestLog?: { type: string,
         <div className="flex flex-col gap-2">
           <AnimatePresence initial={false}>
             {alerts.length === 0 ? (
-              <p className="text-center text-default-500 text-sm mt-4">No recent events.</p>
+              <p className="text-center text-default-500 text-sm mt-4">
+                No recent events.
+              </p>
             ) : (
               alerts.map((alert) => (
                 <motion.div
                   key={alert.id}
                   layout
-                  initial={{ opacity: 0, y: -20, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
                   className="flex gap-3 items-start p-3 rounded-lg hover:bg-default-100 transition-colors border border-transparent hover:border-default-200"
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
                 >
                   <div
                     className={`w-2 h-2 mt-2 rounded-full shrink-0 ${
@@ -74,7 +82,9 @@ export default function AlertsPanel({ latestLog }: { latestLog?: { type: string,
                     <p className="text-small text-foreground leading-tight pr-2">
                       {alert.message}
                     </p>
-                    <p className="text-tiny text-default-400 font-mono tracking-tighter">{alert.time}</p>
+                    <p className="text-tiny text-default-400 font-mono tracking-tighter">
+                      {alert.time}
+                    </p>
                   </div>
                 </motion.div>
               ))

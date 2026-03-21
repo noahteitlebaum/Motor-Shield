@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
+import FadeInUp from "../components/animations/FadeInUp";
+
 import GraphCard from "@/components/GraphCard";
 import StatusSection from "@/components/StatusSection";
-import FadeInUp from "../components/animations/FadeInUp";
 
 export type AnomalyType = "vibration" | "current" | "temperature" | null;
 
@@ -24,6 +26,7 @@ export default function Dashboard() {
       "Faulty_Open_Circuit",
     ];
     const pickedStatus = classes[Math.floor(Math.random() * classes.length)];
+
     setDiagnosis(pickedStatus);
 
     // Orchestrator loop
@@ -38,10 +41,12 @@ export default function Dashboard() {
           "Acoustic signature within normal bounds.",
           "Network latency 12ms.",
         ];
+
         setLatestLog({
           type: "success",
           message: normalLogs[Math.floor(Math.random() * normalLogs.length)],
         });
+
         return;
       }
 
@@ -53,6 +58,7 @@ export default function Dashboard() {
           "Power factor stable at 0.95.",
           "Cooling system performing well.",
         ];
+
         setLatestLog({
           type: "success",
           message: healthyLogs[Math.floor(Math.random() * healthyLogs.length)],
@@ -64,6 +70,7 @@ export default function Dashboard() {
           "Severe current imbalance detected.",
           "Missing phase cycle detected by AI.",
         ];
+
         setLatestLog({
           type: "danger",
           message: msgs[Math.floor(Math.random() * msgs.length)],
@@ -76,6 +83,7 @@ export default function Dashboard() {
             "Hotspot localized in Winding B.",
             "Insulation integrity warning triggered.",
           ];
+
           setLatestLog({
             type: "warning",
             message: msgs[Math.floor(Math.random() * msgs.length)],
@@ -86,6 +94,7 @@ export default function Dashboard() {
             "Current imbalance detected across phases.",
             "Excessive current draw during operation gap.",
           ];
+
           setLatestLog({
             type: "danger",
             message: msgs[Math.floor(Math.random() * msgs.length)],
@@ -98,6 +107,7 @@ export default function Dashboard() {
           "Transient spike caught in vibration data.",
           "Unexpected high-frequency harmonics.",
         ];
+
         setLatestLog({
           type: "warning",
           message: msgs[Math.floor(Math.random() * msgs.length)],
@@ -131,22 +141,22 @@ export default function Dashboard() {
       <FadeInUp>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center pb-10 mt-4">
           <GraphCard
-            title="Vibration Analysis"
             description="Frequency domain analysis of motor vibrations showing potential bearing faults detected at 120Hz harmonic."
-            type="vibration"
             isAnomaly={activeAnomaly === "vibration"}
+            title="Vibration Analysis"
+            type="vibration"
           />
           <GraphCard
-            title="Current Draw"
             description="Real-time phase current monitoring. Spikes indicate increased load or potential short circuits in the windings."
-            type="current"
             isAnomaly={activeAnomaly === "current"}
+            title="Current Draw"
+            type="current"
           />
           <GraphCard
-            title="Temperature"
             description="Stator winding temperature readings. Sustained high temperatures may lead to insulation degradation."
-            type="temperature"
             isAnomaly={activeAnomaly === "temperature"}
+            title="Temperature"
+            type="temperature"
           />
         </div>
       </FadeInUp>
