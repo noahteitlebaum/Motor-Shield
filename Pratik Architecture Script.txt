@@ -10,7 +10,7 @@ Transformer Analysis:
   - Limitation: Require more data and computational resources compared to CNNs
 
 Hybrid Architecture Solution:
-  - CNNs extract local features first - identifying critical spikes and local patterns in three-phase motor currents
+  - CNNs extract local features first, identifying critical spikes and local patterns in three-phase motor currents
   - Transformers analyze relationships between features across time, capturing broader context and long-range dependencies
   - Combines efficiency and local pattern recognition of CNNs with global context understanding of Transformers
 
