@@ -6,8 +6,10 @@ import FadeInUp from "../components/animations/FadeInUp";
 
 export default function ProjectOverview() {
   return (
-    <div className="w-full flex flex-col items-center gap-10 py-12 px-4">
-      {/* Header */}
+    <>
+      <style>{`.gradient-background { display: none !important; }`}</style>
+      <div className="w-full flex flex-col items-center gap-10 py-12 px-4">
+        {/* Header */}
       <div className="max-w-4xl w-full flex flex-col gap-4">
         <FadeInUp delay={0.1}>
         <p className="text-sm font-bold text-blue-500 uppercase tracking-widest leading-none">
@@ -97,7 +99,7 @@ export default function ProjectOverview() {
           </FadeInUp>
           <FadeInUp>
           <Step
-            desc="We train a model to detect patterns that appear before failure happens. Our current best approach is a CNN -> LSTM pipeline for time-series data."
+            desc="We train a model to detect patterns that appear before failure happens. Our current best approach is a CNN -> Transformer pipeline for time-series data."
             icon={<AIModelIcon />}
             num="2"
             title="Deep Learning Model"
@@ -164,6 +166,7 @@ export default function ProjectOverview() {
       </Card>
 
     </div>
+    </>
   );
 }
 

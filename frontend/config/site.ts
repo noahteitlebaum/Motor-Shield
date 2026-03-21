@@ -9,16 +9,17 @@ export const siteConfig = {
       href: "/Dashboard",
     },
     {
+      label: "Project Overview",
+      href: "/ProjectOverview",
+    },
+
+    {
       label: "Learn More",
       href: "/LearnMore",
     },
     {
       label: "Meet The Team",
       href: "/MeetTheTeam",
-    },
-    {
-      label: "Project Overview",
-      href: "/ProjectOverview",
     },
   ],
   navMenuItems: [
@@ -27,16 +28,16 @@ export const siteConfig = {
       href: "/Dashboard",
     },
     {
+      label: "Project Overview",
+      href: "/ProjectOverview",
+    },
+    {
       label: "Learn More",
       href: "/LearnMore",
     },
     {
       label: "Meet The Team",
       href: "/MeetTheTeam",
-    },
-    {
-      label: "Project Overview",
-      href: "/ProjectOverview",
     },
   ],
   links: {

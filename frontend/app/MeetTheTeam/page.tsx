@@ -103,7 +103,7 @@ export default function MeetTheTeam() {
                 <p className="text-small text-blue-600 font-semibold uppercase">
                   {m.role}
                 </p>
-                <p className="text-small text-default-500">{m.bio}</p>
+                {/* <p className="text-small text-default-500">{m.bio}</p> */}
               </div>
             </CardBody>
           </Card>
